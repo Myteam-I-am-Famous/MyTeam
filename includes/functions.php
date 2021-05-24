@@ -66,7 +66,7 @@ function getmaxID($dbh)
     }
 }
 
-function sendVerificationMail($to, $code)
+function sendVerificationMail($id, $to, $code)
 {
     $mail = new PHPMailer(true);
 
@@ -84,7 +84,7 @@ function sendVerificationMail($to, $code)
         $mail->Subject = "Confirmation d'inscription";
         $mail->Body = 'Votre code de vérification est :'
             . $code
-            . "<br><a href='141.94.17.218/includes/code_check.php?type=signup&code={$code}'>Cliquez sur ce lien pour vérifier votre compte</a>";
+            . "<br><a href='141.94.17.218/includes/code_check.php?id={$id}&type=signup&code={$code}'>Cliquez sur ce lien pour vérifier votre compte</a>";
         $mail->CharSet = 'utf-8';
 
         $mail->AddAddress($to);
@@ -105,16 +105,16 @@ function checkVerificationCode($dbh, $email, $code)
         return false;
 }
 
-function useractivated($dbh, $email)
+function useractivated($dbh, $id)
 {
 
 
-    $q = 'SELECT actif FROM utilisateurs WHERE email = :email;';
+    $q = 'SELECT actif FROM utilisateurs WHERE id = :id;';
     $stmt = $dbh->prepare($q);
 
     $status = $stmt->execute(
         array(
-            'email' => $email
+            'id' => $id
         )
     );
 
@@ -189,7 +189,7 @@ function createUser($dbh, $nom, $prenom, $age, $email, $mdp)
     );
 
     if ($status) {
-        sendVerificationMail($email, $code);
+        sendVerificationMail($id, $email, $code);
         return true;
     }
 
