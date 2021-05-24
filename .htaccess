@@ -1,0 +1,8 @@
+RewriteEngine On [L]
+RewriteRule ^home$ /index.php [L]
+RewriteRule ^inscription$ /signup.php [L]
+RewriteRule ^connexion$ /login.php [L]
+
+RewriteRule ^verification/([a-zA-Z0-9]+)$ /includes/code_check.php?code=$1 [L]
+
+ErrorDocument 404 /errors/404.html
