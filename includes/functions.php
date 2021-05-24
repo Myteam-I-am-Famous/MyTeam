@@ -51,6 +51,27 @@ function userexists($dbh, $email)
     return false;
 }
 
+function getuserinfo($dbh, $info, $email)
+{
+    $q = 'SELECT ' . $info . ' FROM utilisateurs WHERE email = :email;';
+    $stmt = $dbh->prepare($q);
+
+    $status = $stmt->execute(
+        array(
+            'email' => $email
+        )
+    );
+
+    if ($status) {
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $result[$info];
+    }
+
+    return false;
+}
+
+
 function getmaxID($dbh)
 {
 
@@ -127,24 +148,18 @@ function useractivated($dbh, $id)
     return false;
 }
 
-function getuserinfo($dbh, $info, $email)
+function activateuser($dbh, $id)
 {
-    $q = 'SELECT ' . $info . ' FROM utilisateurs WHERE email = :email;';
+    $q = 'UPDATE utilisateurs SET actif = 1 WHERE id = :id;';
     $stmt = $dbh->prepare($q);
 
     $status = $stmt->execute(
         array(
-            'email' => $email
+            'id' => $id
         )
     );
 
-    if ($status) {
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return $result[$info];
-    }
-
-    return false;
+    return $status;
 }
 
 

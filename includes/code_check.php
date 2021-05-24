@@ -8,14 +8,11 @@ if (!isset($_GET['code']) && !isset($_GET['id'])) {
 	exit();
 }
 
+if (!useractivated($dbh, $_GET['id'])) {
+	activateuser($dbh, $_GET['id']);
+	header('location: ../index.php?message=useractivated');
+	exit();
+}
 
-echo useractivated($dbh, $_GET['id']);
-
-
-echo '<br><br>userhash : <br>';
-echo getuserinfo($dbh, 'hash', 'abdoudu78130@gmail.com');
-
-echo '<br><br>hashedcode : <br>';
-echo md5($_GET['code']);
-
-echo '<br>';
+header('location: ../index.php?message=useralreadyactivated');
+exit();
