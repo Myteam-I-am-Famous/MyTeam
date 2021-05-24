@@ -12,7 +12,8 @@
                 <input type="text" name="nom" placeholder="Nom...">
                 <input type="text" name="prenom" placeholder="Prénom...">
                 <input type="number" name="age" placeholder="Age...">
-                <input type="text" name="email" placeholder="Email...">
+                <input type="email" name="email" placeholder="Votre email..." value="<?php echo isset($_COOKIE['email']) ? $_COOKIE['email'] : ''; ?>">
+                <input type="file" name="image" accept="image/gif,image/jpeg, image/jpeg,"placeholder="Votre image de profil..">
                 <input type="password" name="mdp" placeholder="Mot de passe...">
                 <input type="password" name="mdprepeat" placeholder="Répéter le mot de passe...">
                 <div class="sign-submit">

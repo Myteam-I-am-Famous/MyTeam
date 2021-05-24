@@ -13,14 +13,14 @@
         </div>
     </div>
          <script async src="https://www.googletagmanager.com/gtag/js?id=G-H8JVDM1LW3"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+         <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
 
-  gtag('config', 'G-H8JVDM1LW3');
-</script>
-</main>
+          gtag('config', 'G-H8JVDM1LW3');
+         </script>
+         </main>
 
 
 <?php print_r($_SESSION); ?>

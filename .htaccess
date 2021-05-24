@@ -1,25 +1,8 @@
-#Réécriture d'url
-RewriteEngine On
-RewriteRule ^User1 /index.php [L]
-RewriteRule /captcha /captcha/index.html [L]
-#RewriteRule ^(.*)$ http://www.myteam.fr//$1 [R=301,L]
-# Activez HTTPS
-#
-ErrorDocument 404 /error404.html
-#page erreur
+RewriteEngine On [L]
+RewriteRule ^home$ /index.php [L]
+RewriteRule ^inscription$ /signup.php [L]
+RewriteRule ^connexion$ /login.php [L]
 
+RewriteRule ^verification/([a-zA-Z0-9]+)$ /includes/code_check.php?code=$1 [L]
 
-AuthType Basic
-AuthName "fichiers réservés"
-AuthUserFile "/var/www/html/.htpasswd"
-#AuthPGAuthoritative Off
-Require valid-user
-#protection par mot de passe
-
-# PHP Memory Limit
-php_value memory_limit 128M
-
-# Définir le codage de caractères
-AddDefaultCharset utf-8
-
-
+ErrorDocument 404 /errors/404.html

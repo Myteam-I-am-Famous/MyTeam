@@ -84,7 +84,9 @@ try{
     $mail->isHTML(true);
     $mail->SetFrom('no-reply@myteam.fr','[MyTeam]');
     $mail->Subject = "Confirmation d'inscription";
-    $mail->Body = 'Votre code de vérification est :' . $code . "<br><a href='141.94.17.218/check_code?type=signup&code={$code}'>Cliquez sur ce lien pour vérifier votre compte</a>";
+    $mail->Body = 'Votre code de vérification est :' 
+. $code 
+. "<br><a href='141.94.17.218/includes/code_check.php?type=signup&code={$code}'>Cliquez sur ce lien pour vérifier votre compte</a>";
     $mail->CharSet = 'utf-8';
 
     $mail->AddAddress($to);
