@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ESPN</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div id="card-inventory"></div>
+
+      <div id="remove-card">
+        <input type="submit" value="vendre" id="remove" />
+      </div>
+
+      <div class="search">
+        <input
+          type="text"
+          id="input"
+          placeholder="Player Name e.g Lonzo Ball..."
+        />
+
+        <select name="team" id="team-selection">
+          <option value="atl">Atlanta Hawks</option>
+          <option value="bkn">Brooklyn Nets</option>
+          <option value="bos">Boston Celtics</option>
+          <option value="cha">Charlotte Hornets</option>
+          <option value="chi">Chicago Bulls</option>
+          <option value="cle">Cleveland Cavaliers</option>
+          <option value="dal">Dallas Mavericks</option>
+          <option value="den">Dallas Denver Nuggets</option>
+          <option value="det">Detroit Pistons</option>
+          <option value="gsw">Golden State Warriors</option>
+          <option value="hou">Houston Rockets</option>
+          <option value="ind">Indiana Pacers</option>
+          <option value="lac">Los Angeles Clippers</option>
+          <option value="lal">Los Angeles Lakers</option>
+          <option value="mem">Memphis Grizzlies</option>
+          <option value="mia">Miami Heat</option>
+          <option value="mil">Milwaukee Bucks</option>
+          <option value="min">Minnesota Timberwolves</option>
+          <option value="no">New Orleans Pelicans</option>
+          <option value="nyk">New York Knicks</option>
+          <option value="okc">Oklahoma City Thunder</option>
+          <option value="orl">Orlando Magic</option>
+          <option value="phi">Philadelphia 76ers</option>
+          <option value="phx">Phoenix Suns</option>
+          <option value="por">Portland Trail Blazers</option>
+          <option value="sac">Sacramento Kings</option>
+          <option value="sas">San Antonio Spurs</option>
+          <option value="tor">Toronto Raptors</option>
+          <option value="uta">Utah Jazz</option>
+          <option value="was">Washington Wizards</option>
+        </select>
+
+        <input type="submit" id="submit" value="Search" />
+        <input type="submit" value="Buy" id="buy" />
+      </div>
+      <div id="card-handler">
+        <div class="card-container">
+          <div class="card">
+            <div class="top">
+              <div class="flip-btn">=</div>
+              <img
+                src="https://logodownload.org/wp-content/uploads/2019/06/houston-rockets-logo-12.png"
+                alt=""
+                id="team-logo"
+              />
+              <h4 id="sport-name">NBA</h4>
+              <img
+                id="headshot"
+                src="https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/1966.png&w=350&h=254"
+                id="headshot"
+                alt=""
+                srcset=""
+              />
+            </div>
+
+            <div class="middle">
+              <div class="col">
+                <h3 id="number">13</h3>
+                <p>Number</p>
+              </div>
+              <div class="col">
+                <h3 id="name">James Harden</h3>
+                <div class="infos">
+                  <p id="position">Shooting Guard</p>
+                  <p id="team-name">Houston Rockets</p>
+                </div>
+              </div>
+              <div class="plus"><p>+</p></div>
+            </div>
+
+            <div class="bottom">
+              <div class="stats">
+                <div class="col">
+                  <h3 id="mpg">35</h3>
+                  <p>Minutes</p>
+                  <h3 id="rpg">8</h3>
+                  <p>Rebounds</p>
+                </div>
+                <div class="col">
+                  <h3 id="ppg">28</h3>
+                  <p>Points</p>
+                  <h3 id="apg">10</h3>
+                  <p>Assists</p>
+                </div>
+                <div class="col">
+                  <h3 id="fg">36</h3>
+                  <p>FG%</p>
+                  <h3 id="3pt">2</h3>
+                  <p>3 Pointer</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./js/app.js"></script>
+  </body>
+</html>
