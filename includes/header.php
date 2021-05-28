@@ -10,6 +10,8 @@
     <title>Myteam</title>
     <link rel="stylesheet" href="css/style.css" />
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" />
+    <script src="https://kit.fontawesome.com/7d4db968a5.js" crossorigin="anonymous"></script>
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
 </head>
 
 <body>
@@ -24,9 +26,9 @@
         <nav>
             <ul class="nav-links">
                 <li><a href="#" class="nav-link">Acceuil</a></li>
-                <li><a href="#" class="nav-link">My Team</a></li>
+                <li><a href="myteam/index.html" class="nav-link">My Team</a></li>
                 <li><a href="#" class="nav-link">Sports</a></li>
-                <li><a href="testdb.php" class="nav-link">Boutique</a></li>
+                <li><a href="#" class="nav-link">Boutique</a></li>
                 <li><a href="#" class="nav-link">Actualités</a></li>
                 <li><a href="#" class="nav-link">S'abonner</a></li>
                 <!-- <li><a href="#" class="nav-link"></a></li> -->
@@ -41,8 +43,8 @@
                 ';
             } else {
                 echo "
-                <a href='login.php'>Se connecter</a>
-                <a href='signup.php'>S'inscrire</a>
+                <a href='login.php?status=login'>Se connecter</a>
+                <a href='login.php?status=signup'>S'inscrire</a>
                 ";
             }
             ?>

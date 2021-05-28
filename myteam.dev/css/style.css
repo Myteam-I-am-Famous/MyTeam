@@ -1,0 +1,373 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body,
+button {
+  font-family: "Roboto", sans-serif;
+}
+
+.container {
+  width: 100vw;
+  height: 100vh;
+  background-color: #333;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: -10;
+}
+
+#card-handler {
+  width: 50%;
+  height: 95%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-container {
+  width: 500px;
+  height: 700px;
+  border-radius: 35px;
+  perspective: 1250px;
+}
+
+.card {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: white;
+  border-radius: 25px;
+  filter: brightness(0.9);
+  transition: 0.25s ease-in-out;
+  box-shadow: 10px 10px 25px rgba(0, 0, 0, 0.2),
+    -10px -10px 25px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transform-style: preserve-3d;
+}
+
+.card:hover {
+  filter: brightness(1.2);
+}
+
+.top {
+  background-color: grey;
+  height: 50%;
+  border-top-left-radius: 25px;
+  border-top-right-radius: 25px;
+  position: relative;
+  z-index: 0;
+}
+
+.flip-btn {
+  position: absolute;
+  right: 5%;
+  top: 5%;
+  font-size: 2.7rem;
+  cursor: pointer;
+  opacity: 0.3;
+
+  transition: 0.2s ease-in-out;
+}
+
+.flip-btn:hover {
+  transform: rotateZ(180deg);
+  opacity: 1;
+}
+
+#team-logo {
+  height: 40px;
+  margin: 0.5rem;
+}
+
+#sport-name {
+  position: absolute;
+  top: 20%;
+  left: 1%;
+  transform: rotateZ(90deg);
+  font-size: 0.8rem;
+}
+
+#headshot {
+  z-index: -1;
+  position: absolute;
+  top: 0%;
+  left: 0;
+  width: 100%;
+  /* height: 450px; */
+  border-radius: 25px;
+}
+
+.middle {
+  height: 15%;
+  background-color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+
+  /* background: url("https://media.istockphoto.com/vectors/vector-hex-blocks-dark-gray-technology-abstract-background-vector-id1186673488?k=6&m=1186673488&s=170667a&w=0&h=4WhLwJFoNB99UwfgeBEmdzUtuZsPSwQJY1uAo6-Wxac="); */
+  /* background: url("https://thumbs.gfycat.com/GreenAdolescentIndianspinyloach-size_restricted.gif"); */
+  /*background: url("../assets/jersey_greyscale.png");*/
+background: url('https://media.istockphoto.com/photos/red-sports-clothing-fabric-football-jersey-texture-close-up-picture-id1179885091?k=6&m=1179885091&s=612x612&w=0&h=2in8Wq0UL8hEtbV4YxPaHpMT6sa8Y60ESLcplsXl5Vs=');
+  background-color: rgba(182, 0, 238, 0.726);
+  background-blend-mode: multiply;
+}
+
+.middle .col:nth-child(2) {
+  align-items: flex-start;
+}
+
+.infos {
+  display: flex;
+  justify-content: space-between;
+}
+
+.infos p:first-child {
+  padding-right: 0.5rem;
+  margin-right: 0.5rem;
+  border-right: 1px solid white;
+}
+
+#role {
+  border-right: 1px solid white;
+  padding-right: 0.8rem;
+  margin-right: 0.8rem;
+}
+
+.plus {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: rgb(199, 47, 47);
+  border-top-left-radius: 10px;
+  width: 25px;
+  color: black;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.7rem;
+  cursor: pointer;
+
+  transition: all 0.25s ease-in-out;
+}
+
+.plus p {
+  transition: 0.5s ease-in-out;
+  padding: 0 0.5rem;
+}
+
+.plus:hover {
+  filter: brightness(1.5);
+}
+
+.plus p:hover {
+  transform: rotateZ(180deg);
+}
+
+.bottom {
+  height: 35%;
+  display: flex;
+  z-index: 2;
+  justify-content: center;
+  align-items: center;
+  border-bottom-left-radius: 25px;
+  border-bottom-right-radius: 25px;
+  background: url("https://media.istockphoto.com/vectors/vector-hex-blocks-dark-gray-technology-abstract-background-vector-id1186673488?k=6&m=1186673488&s=170667a&w=0&h=4WhLwJFoNB99UwfgeBEmdzUtuZsPSwQJY1uAo6-Wxac=");
+  background: url("https://png.pngtree.com/thumb_back/fw800/background/20191015/pngtree-black-background-with-hexagon-texture-and-shadow-effect-image_319561.jpg");
+  background-position: center center;
+}
+
+.stats {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  text-transform: uppercase;
+  padding: 1rem 2rem;
+}
+
+.bottom .col p{
+//background-color:red;
+  margin-bottom:1.5rem;
+}
+.stats .col:not(.col:last-of-type) {
+  border-right: 1px solid white;
+}
+
+.middle .col:first-child {
+  border-right: 1px solid white;
+}
+
+.col p {
+  font-size: 0.6rem;
+}
+
+#card-inventory {
+  width: 500px;
+  max-height: 300px;
+  overflow-y: scroll;
+  background-color: rgb(39, 33, 35);
+  border-radius: 15px;
+  position: absolute;
+  padding: 1rem;
+  top: 40%;
+  left: 10%;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
+  transition: 1s 0.5s ease-in-out;
+}
+
+.inventory-card {
+  height: 100px;
+  clip-path: circle(50px at center);
+  background-color: grey;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: 0.5s ease;
+}
+
+.inventory-card:hover {
+  opacity: 1;
+  background-color: rgb(112, 161, 79);
+}
+
+.search {
+  position: absolute;
+  top: 5%;
+  left: 5%;
+}
+
+#input {
+  padding: 1rem;
+  border-radius: 25px;
+  border: none;
+  outline: none;
+  background-color: #5a5756;
+  color: white;
+}
+
+#submit {
+  padding: 1rem;
+  border-radius: 25px;
+  border: none;
+  outline: none;
+  background: none;
+  border: 2px solid white;
+  color: white;
+  cursor: pointer;
+  transition: 0.5s ease-in-out;
+}
+
+#submit:hover {
+  background-color: white;
+  color: black;
+  border: 2px solid black;
+}
+
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -ms-appearance: none;
+  appearance: none;
+  padding: 1rem 0.5rem;
+  border-radius: 25px;
+  outline: 0;
+  box-shadow: none;
+  border: 0 !important;
+  background: #444e58;
+  background-image: none;
+}
+/* Remove IE arrow */
+select::-ms-expand {
+  display: none;
+}
+/* Custom Select */
+.select {
+  position: relative;
+  display: flex;
+  width: 20em;
+  line-height: 3;
+  background: #2c3e50;
+  overflow: hidden;
+  border-radius: 0.25em;
+}
+select {
+  flex: 1;
+  color: #fff;
+  cursor: pointer;
+}
+/* Arrow */
+.select::after {
+  content: "\25BC";
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0 1em;
+  background: #34495e;
+  cursor: pointer;
+  pointer-events: none;
+  -webkit-transition: 0.25s all ease;
+  -o-transition: 0.25s all ease;
+  transition: 0.25s all ease;
+}
+/* Transition */
+.select:hover::after {
+  color: #f39c12;
+}
+
+#buy {
+  padding: 1rem;
+  border-radius: 25px;
+  border: none;
+  outline: none;
+  background: none;
+  border: 2px solid white;
+  color: white;
+  cursor: pointer;
+  transition: 0.5s ease-in-out;
+}
+
+#buy:hover {
+  background-color: white;
+  color: black;
+  border: 2px solid black;
+}
+
+#remove {
+  padding: 1rem;
+  border-radius: 25px;
+  border: none;
+  outline: none;
+  background-color: rgba(224, 67, 67, 0.616);
+  border: 2px solid white;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+  position: absolute;
+  top: 15%;
+  left: 75%;
+}
+
+#remove:hover {
+  background-color: rgb(218, 22, 22);
+}

@@ -24,6 +24,15 @@ if (!validpassword($dbh, $_POST['email'], $_POST['password'])) {
     exit();
 }
 
+
 $_SESSION['uid'] = $_POST['email'];
+
+if($_POST['email']=='admin@esgi.fr'){
+    header('location: ../adminboard.php?message=adminconnected');
+    exit();
+}else{
+ header('location: ../index.php?message=connected');
+ exit();
+}
 header('location: ../index.php?message=connected');
 exit();

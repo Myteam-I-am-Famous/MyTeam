@@ -1,4 +1,7 @@
 <?php
+date_default_timezone_set("Asia/Manila");
+$date=date('F j, Y g:i:a');
+
 
 $dbname = "myteam";
 $host = 'localhost';

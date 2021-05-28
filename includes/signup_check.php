@@ -5,37 +5,37 @@ include './functions.php';
 
 
 if (!isset($_POST['submit'])) {
-    header('location: ../signup.php?accessdenied');
+    header('location: ../login.php?accessdenied');
     exit();
 }
 
 if (emptyInputs([$_POST['nom'], $_POST['prenom'], $_POST['email'], $_POST['age'], $_POST['mdp'], $_POST['mdprepeat']])) {
-    header('location: ../signup.php?message=emptyinput');
+    header('location: ../login.php?message=emptyinput');
     exit();
 }
 
 if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
-    header('location: ../signup.php?message=invalidemail');
+    header('location: ../login.php?message=invalidemail');
     exit();
 }
 
 if (!is_between(strlen($_POST['mdp']), 6, 12)) {
-    header('location: ../signup.php?message=passwordlenght');
+    header('location: ../login.php?message=passwordlenght');
     exit();
 }
 
 if ($_POST['mdp'] !== $_POST['mdprepeat']) {
-    header('location: ../signup.php?message=passworddontmatch');
+    header('location: ../login.php?message=passworddontmatch');
     exit();
 }
 
 if (invalidAge($_POST['age'])) {
-    header('location: ../signup.php?message=invalidAge');
+    header('location: ../login.php?message=invalidAge');
     exit();
 }
 
 if (userexists($dbh, $_POST['email'])) {
-    header('location: ../signup.php?message=userexists');
+    header('location: ../login.php?message=userexists');
     exit();
 }
 if (isset($_FILES['image'])&& !empty($_FILES['image']['name'])){
@@ -49,7 +49,7 @@ if (isset($_FILES['image'])&& !empty($_FILES['image']['name'])){
     if (in_array($_FILES['image']['type'], $acceptable)) {
         //redirection si c'est pas le bon type
         // Rediriger vers la page inscription avec une erreur
-    header('location:signup.php?message=le fichier n\'est pas du bon type');
+    header('location:login.php?message=le fichier n\'est pas du bon type');
     exit;
     }
 
@@ -58,7 +58,7 @@ if (isset($_FILES['image'])&& !empty($_FILES['image']['name'])){
 
 
     if ($_FILES['image']['size'] > $maxsize) {
-        header('location:signup.php?message=le fichier est trop lourd');
+        header('location:login.php?message=le fichier est trop lourd');
     exit;
 
     }
@@ -88,14 +88,46 @@ $destination = $path . '/' . $filename ; // le chemin où le fichier sera enregi
 
 move_uploaded_file($_FILES['image']['tmp_name'], $destination); // deplacement
 
+
+
+
+  function getIp(){
+    if(!empty($_SERVER['HTTP_CLIENT_IP'])){
+      $ip = $_SERVER['HTTP_CLIENT_IP'];
+    }elseif(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
+      $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    }else{
+      $ip = $_SERVER['REMOTE_ADDR'];
+    }
+    return $ip;
+  }
+
+if(isset($_POST['email']) && !empty($_POST['email'])){
+	setcookie(getIp(), $_POST['getIp()'], time() + (24 * 60 * 60));
+
+
+	// Ecrire les tentatives de connexion dans un fichier log.txt
+
+	// Ouverture du fichier (avec création si nécessaire)
+	$log = fopen('log.txt', 'a+');
+
+	// Formatage de la ligne à ajouter
+	$line = date('Y/m/d - H:i:s') . ' -  adresse ip : ' . getIp() . "\n";
+
+	// Ajout de la ligne au fichier
+	fputs($log, $line);
+
+	// Fermeture du fichier
+	fclose($log);
+
 }
 
 
 if (!createUser($dbh, $_POST['nom'], $_POST['prenom'], $_POST['age'], $_POST['email'], $_POST['mdp'], $_POST['file'])) {
-    header('location: ../signup.php?message=createuserfailure');
+    header('location: ../login.php?message=createuserfailure');
     exit();
 }
 
 
-header('location: ../signup.php?message=accountcreated');
+header('location: ../index.php?message=accountcreated');
 exit();
