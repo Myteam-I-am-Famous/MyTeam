@@ -1,8 +1,23 @@
+<IFModule mod_rewrite.c>
 RewriteEngine On [L]
 RewriteRule ^home$ /index.php [L]
-RewriteRule ^inscription$ /signup.php [L]
-RewriteRule ^connexion$ /login.php [L]
-
+RewriteRule ^inscription$ /login.php?status=signup [L]
+RewriteRule ^connexion$ /login.php?status=login [L]
+RewriteRule ^admin$ /adminboard.php [L]
 RewriteRule ^verification/([a-zA-Z0-9]+)$ /includes/code_check.php?code=$1 [L]
+</IFModule>
+<limit GET POST HEAD>
+    Order Allow,Deny
+    Allow from all
+    Deny from env=bad_bot
+</limit>
 
-ErrorDocument 404 /errors/404.html
+# deny from 192.168.6.1 allow from all 
+ErrorDocument 404 /errors/404.php
+
+
+###########tes morts
+#################D accord
+
+#RewriteCond %{REQUEST_URI} !/images/.*
+#RewriteRule ^(.*\.(gif|jpg|png))$ images/$1 [QSA, L]
