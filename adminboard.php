@@ -1,19 +1,16 @@
-<H1>Vous etes sur la page Admin</H1>
 
-<?php
-
-
-  function getIp(){
-    if(!empty($_SERVER['HTTP_CLIENT_IP'])){
-      $ip = $_SERVER['HTTP_CLIENT_IP'];
-    }elseif(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
-      $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    }else{
-      $ip = $_SERVER['REMOTE_ADDR'];
-    }
-    return $ip;
-  }
-  echo 'L IP de l utilisateur  est : '.getIp();
-
-
-?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=, initial-scale=1.0">
+    <title>Page admin</title>
+</head>
+<body>
+    <a href="membres.php">Afficher tous les membres</a>
+    <a href="publier_article.php">Publier un nouvel article</a>
+   <a href="articles.php">Afficher tous les  articles</a>
+   <a href="dashboard.php">Afficher les statistique</a>
+</body>
+</html>

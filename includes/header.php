@@ -1,5 +1,7 @@
 <?php session_start(); ?>
-
+<?php
+include("functions/compteur.php");
+ ?>
 <!DOCTYPE html>
 <html lang="en">
 

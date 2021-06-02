@@ -70,20 +70,12 @@
                             <input type="text" name="pseudo" placeholder="pseudo">
                         </div>
                         <div class="input-field">
-                            <i class="fas fa-user"></i>
-                            <input type="number" name="age" placeholder="Âge">
-                        </div>
-                        <div class="input-field">
                             <i class="fas fa-envelope"></i>
                             <input type="text" name="email" placeholder="Email">
                         </div>
                         <div class="input-field">
                             <i class="fas fa-lock"></i>
                             <input type="password" name="mdp" placeholder="Mot de passe">
-                        </div>
-                        <div class="input-field">
-                            <i class="fas fa-lock"></i>
-                            <input type="password" name="mdprepeat" placeholder="Répéter le mot de passe">
                         </div>
                         <input type="submit" name="submit" value="S'inscrire" class="btn solid">
 

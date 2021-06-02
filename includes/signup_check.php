@@ -9,7 +9,7 @@ if (!isset($_POST['submit'])) {
     exit();
 }
 
-if (emptyInputs([$_POST['nom'], $_POST['prenom'], $_POST['email'], $_POST['age'], $_POST['mdp'], $_POST['mdprepeat']])) {
+if (emptyInputs([$_POST['nom'], $_POST['prenom'], $_POST['email'], $_POST['mdp']])) {
     header('location: ../login.php?message=emptyinput');
     exit();
 }
@@ -23,7 +23,7 @@ if (!is_between(strlen($_POST['mdp']), 6, 12)) {
     header('location: ../login.php?message=passwordlenght');
     exit();
 }
-
+/* Gavin afouzbfuiazbfuiazbduiabfuiza
 if ($_POST['mdp'] !== $_POST['mdprepeat']) {
     header('location: ../login.php?message=passworddontmatch');
     exit();
@@ -32,13 +32,13 @@ if ($_POST['mdp'] !== $_POST['mdprepeat']) {
 if (invalidAge($_POST['age'])) {
     header('location: ../login.php?message=invalidAge');
     exit();
-}
+}*/
 
 if (userexists($dbh, $_POST['email'])) {
     header('location: ../login.php?message=userexists');
     exit();
 }
-if (isset($_FILES['image'])&& !empty($_FILES['image']['name'])){
+/*if (isset($_FILES['image'])&& !empty($_FILES['image']['name'])){
     //verifier le type du fichier
 
     $acceptable = [
@@ -101,8 +101,8 @@ move_uploaded_file($_FILES['image']['tmp_name'], $destination); // deplacement
     }
     return $ip;
   }
-
-if(isset($_POST['email']) && !empty($_POST['email'])){
+ */
+/*if(isset($_POST['email']) && !empty($_POST['email'])){
 	setcookie(getIp(), $_POST['getIp()'], time() + (24 * 60 * 60));
 
 
@@ -121,7 +121,7 @@ if(isset($_POST['email']) && !empty($_POST['email'])){
 	fclose($log);
 
 }
-
+*/
 
 if (!createUser($dbh, $_POST['nom'], $_POST['prenom'], $_POST['age'], $_POST['email'], $_POST['mdp'], $_POST['file'])) {
     header('location: ../login.php?message=createuserfailure');
@@ -131,3 +131,4 @@ if (!createUser($dbh, $_POST['nom'], $_POST['prenom'], $_POST['age'], $_POST['em
 
 header('location: ../index.php?message=accountcreated');
 exit();
+

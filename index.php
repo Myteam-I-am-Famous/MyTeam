@@ -1,7 +1,6 @@
 <?php include "includes/header.php"; ?>
 
 
-
 <main>
     <div class="jumbotron">
         <video class="bg-video" src="assets/videos/james_harden.mp4" autoplay muted loop></video>
