@@ -24,8 +24,7 @@ if(isset($_GET['id']) AND !empty($_GET['id'])){
         $titre_saisi = htmlspecialchars($_POST['titre']);
         $description_saisi = nl2br(htmlspecialchars($_POST['description']));
         $img_saisi = htmlspecialchars($_POST['img']);
-        //problème par ici || || 
-        $update = $dbh->prepare('UPDATE articles SET titre = ? AND img = ? AND description = ? WHERE id = ?');
+        $update = $dbh->prepare('UPDATE articles SET titre = ? , img = ? , description = ? WHERE id = ?');
         $update ->execute(array($titre_saisi, $description_saisi, $img, $getid));
          
         header('Location: articles.php');
@@ -45,7 +44,7 @@ if(isset($_GET['id']) AND !empty($_GET['id'])){
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier l Article <?= $recupArticles['title'] ?></title>
+    <title>Modifier l Article <?= $iarticles['titre']; ?></title>
 </head>
 <body>
 

@@ -1,13 +1,21 @@
 <?php
 include('includes/database_handler.php');
 
-$dbname = "myteam";
+$dbname = "myteam_rebuild";
 $host = 'localhost';
 $dsn = "mysql:dbname=" . $dbname . ";host=" . $host;
 
 $user = "myteam";
 $password = "myteam";
-$dbh = new PDO($dsn, $user, $password);
+
+try {
+    $dbh = new PDO($dsn, $user, $password);
+    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    echo 'Erreur de connexion à la base de données : ' . $e->getMessage();
+    die();
+}
+
 class User {
     
     static function select($uservalue) { // $uservalue c'est la valeurs qu'ont souhaite récupérer.
@@ -43,18 +51,13 @@ class User {
 <body>
     <!--afficher tous les membres -->
    <?php 
-     $recupUsers = $dbh->query('select * from utilisateurs'); 
+     $recupUsers = $dbh->query('select * from users'); 
       while ($user = $recupUsers->fetch()){
           ?>
-                <p><?= $user['email']; ?> <a href="profil.php?id=<?= $user['id']; ?>" style="color:blue;text-decoration:none;">Profil utilisateur
+                <p><?= $user['email']; ?> <a href="profil_abdou.php?id=<?= $user['id']; ?>" style="color:blue;text-decoration:none;">Profil utilisateur
  <a href="bannir.php?id=<?= $user['id']; ?>" style="color:red ; text-decoration: none;">Supp DEF  le membre </a>
 
-  <?php if($user['banned'] == '1'):?>
-                            <button type="submit"  name="unban" value="<?= $user['email'] ?>" class="btn btn-warning btn-xs">UnBan</button>
-                        <?php else: ?>
-                            <button type="submit" name="ban" value="<?= $user['email'] ?>" class="btn btn-warning btn-xs">ban</button>
-                        <?php endif; ?></p>
- <?php 
+   <?php 
       }
  ?>
 

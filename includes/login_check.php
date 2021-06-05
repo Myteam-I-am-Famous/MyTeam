@@ -1,7 +1,6 @@
 <?php session_start();
 
 include "./database_handler.php";
-include "./functions.php";
 
 if (!isset($_POST['submit'])) {
     header('location: ../login.php?message=accessdenied');
@@ -25,7 +24,9 @@ if (!validpassword($dbh, $_POST['email'], $_POST['password'])) {
 }
 
 
+
 $_SESSION['uid'] = $_POST['email'];
+
 
 if($_POST['email']=='admin@esgi.fr'){
     header('location: ../adminboard.php?message=adminconnected');

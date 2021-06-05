@@ -1,6 +1,35 @@
 <?php session_start(); ?>
 <?php
-include("functions/compteur.php");
+
+function incrementer_compteur(string $fichier): void
+{
+
+    $compteur = 1;
+    if (file_exists($fichier)) {
+        $compteur = (int)file_get_contents($fichier);
+        $compteur++;
+
+
+        $file = fopen($fichier, 'w');
+        fwrite($file, $compteur);
+
+        fclose($file);
+    } else {
+        file_put_contents($fichier, "1");
+    }
+}
+
+function nombre_vues(): string
+{
+    $fichier = dirname('.') . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'compteur.txt';
+    incrementer_compteur($fichier);
+    return file_get_contents($fichier);
+}
+
+$total = nombre_vues();
+
+var_dump($total);
+
  ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -14,6 +43,9 @@ include("functions/compteur.php");
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" />
     <script src="https://kit.fontawesome.com/7d4db968a5.js" crossorigin="anonymous"></script>
     <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 
 <body>
@@ -32,7 +64,7 @@ include("functions/compteur.php");
                 <li><a href="#" class="nav-link">Sports</a></li>
                 <li><a href="#" class="nav-link">Boutique</a></li>
                 <li><a href="#" class="nav-link">Actualités</a></li>
-                <li><a href="#" class="nav-link">S'abonner</a></li>
+                <li><a href="subsciption.php" class="nav-link">S'abonner</a></li>
                 <!-- <li><a href="#" class="nav-link"></a></li> -->
             </ul>
         </nav>

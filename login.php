@@ -1,4 +1,5 @@
-<?php session_start(); ?>
+<?php session_start();
+?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -26,6 +27,7 @@
                 <div class="sign">
                     <!--  Sign in -->
                     <form action="./includes/login_check.php" class="sign-in" method="POST">
+                       <span class="text-danger"><?php echo $message; ?></span>
                         <h2 class="title">Connexion</h2>
                         <div class="input-field">
                             <i class="fas fa-user"></i>
@@ -33,9 +35,9 @@
                         </div>
                         <div class="input-field">
                             <i class="fas fa-lock"></i>
-                            <input type="password" name="password" placeholder="Mot de passe">
+                            <input type="password" name="mdp" placeholder="Mot de passe">
                         </div>
-                        <input type="submit" name="submit" value="Se connecter" class="btn solid">
+                        <input type="submit" id="submit" name="submit" value="Se connecter" class="btn solid">
 
                         <p class="social-text">Ou se connecter avec :</p>
                         <div class="social-media">

@@ -1,4 +1,11 @@
-<?php include "includes/header.php"; ?>
+<?php include "includes/header.php";
+include('includes/database_handler.php');
+        if(!isset($_SESSION["type"]))
+{
+ header("location:login.php");
+}
+
+ ?>
 
 
 <main>
@@ -21,16 +28,6 @@
          </script>
          </main>
 
-<! - PushAlert ->
-        <script type = "text / javascript">
-                (fonction (d, t) {
-                        var g = d.createElement (t),
-                        s = d.getElementsByTagName (t) [0];
-                        g.src = "https://cdn.pushalert.co/integrate_3b330f65d63c44e229cecf8692dd3a4c.js";
-                        s.parentNode.insertBefore (g, s);
-                } (document, "script"));
-        </script>
-        <! - Fin de PushAlert ->
 <?php print_r($_SESSION); ?>
 
 

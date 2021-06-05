@@ -1,6 +1,5 @@
-//<?php
-//session_start();
-//$_SESSION = arry();
-//session_destroy();
-//header('Location :signup.php');
-//?>
+<?php
+session_start();
+session_destroy();
+header("location:login.php");
+?>
