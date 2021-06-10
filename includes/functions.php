@@ -1,138 +1,513 @@
 <?php
 
-//use PHPMailer\PHPMailer\PHPMailer;
-//use PHPMailer\PHPMailer\SMTP;
-//use PHPMailer\PHPMailer\Exception;
+include 'database_handler.php';
 
-//Gerer les dépendences avec composer
-//require '../vendor/autoload.php';
-
-// * Utils
-
-function emptyInputs($inputs)
+function aresetAndNotEmpty($elements)
 {
-    if (!is_array($inputs))
-        return true;
-
-    foreach ($inputs as $input) {
-        if (empty($input))
-            return true;
+    foreach ($elements as $element) {
+        if (!isset($element) || empty($element))
+            return false;
     }
 
-    return false;
+    return true;
 }
 
-function is_between($value, $min, $max)
+function userexists($uid)
 {
-    if (!is_numeric($value))
-        return false;
+    global $dbh;
 
-    return ($value >= $min && $value <= $max);
-}
+    if (filter_var($uid, FILTER_VALIDATE_EMAIL)) {
+        $q = 'SELECT id FROM users WHERE email = :email;';
+        $stmt = $dbh->prepare($q);
 
+        $status = $stmt->execute(
+            array(
+                'email' => $uid
+            )
+        );
 
-function userexists($dbh, $email)
-{
-    $q = 'SELECT email FROM utilisateurs WHERE email = :email;';
-    $stmt = $dbh->prepare($q);
-    $status = $stmt->execute(
-        array(
-            'email' => $email
-        )
-    );
+        if ($status) {
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($status) {
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($result['id']) {
+                return true;
+            }
 
-        if ($result['email'])
-            return true;
-    }
-
-    return false;
-}
-
-function getuserinfo($dbh, $info, $email)
-{
-    $q = 'SELECT ' . $info . ' FROM utilisateurs WHERE email = :email;';
-    $stmt = $dbh->prepare($q);
-
-    $status = $stmt->execute(
-        array(
-            'email' => $email
-        )
-    );
-
-    if ($status) {
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return $result[$info];
-    }
-
-    return false;
-}
-
-
-function getmaxID($dbh)
-{
-
-    $q = 'SELECT MAX(id) FROM utilisateurs';
-    $req = $dbh->prepare($q);
-    $status = $req->execute();
-
-    if ($status) {
-        $result = $req->fetch();
-        return $result[0];
+            return false;
+        } else {
+            return false;
+        }
     } else {
-        return false;
+        $q = 'SELECT id FROM users WHERE pseudo = :pseudo;';
+        $stmt = $dbh->prepare($q);
+
+        $status = $stmt->execute(
+            array(
+                'pseudo' => $uid
+            )
+        );
+
+        if ($status) {
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($result['id']) {
+                return true;
+            }
+
+            return false;
+        } else {
+            return false;
+        }
     }
+
+    return false;
 }
 
-function sendVerificationMail($id, $to, $code)
+function checkuserpassword($uid, $password)
 {
-    $mail = new PHPMailer(true);
+    global $dbh;
 
-    try {
-        $mail->isSMTP();
-        $mail->SMTPAuth = false;
-        $mail->SMTPSecure = false;
-        $mail->SMTPAutoTLS = false;
+    if (filter_var($uid, FILTER_VALIDATE_EMAIL)) {
 
-        $mail->Host = 'localhost';
-        $mail->Port = 25;
+        $q = 'SELECT password FROM users WHERE email = :email;';
+        $stmt = $dbh->prepare($q);
+        $status = $stmt->execute(
+            array(
+                'email' => $uid
+            )
+        );
 
-        $mail->isHTML(true);
-        $mail->SetFrom('no-reply@myteam.fr', '[MyTeam]');
-        $mail->Subject = "Confirmation d'inscription";
-        $mail->Body = 'Votre code de vérification est :'
-            . $code
-            . "<br><a href='141.94.17.218/includes/code_check.php?id={$id}&type=signup&code={$code}'>Cliquez sur ce lien pour vérifier votre compte</a>";
-        $mail->CharSet = 'utf-8';
+        if ($status) {
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $mail->AddAddress($to);
+            if ($result['password']) {
+                return password_verify($password, $result['password']);
+            }
+        } else {
+            return false;
+        }
+    } else {
+        $q = 'SELECT password FROM users WHERE pseudo = :pseudo;';
+        $stmt = $dbh->prepare($q);
+        $status = $stmt->execute(
+            array(
+                'pseudo' => $uid
+            )
+        );
 
-        $mail->Send();
-        echo 'Mail sent';
-    } catch (Exception $e) {
-        echo 'Message could not be sent. Mail Error: ' . $mail->ErrorInfo;
+        if ($status) {
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($result['password']) {
+                return password_verify($password, $result['password']);
+            }
+        } else {
+            return false;
+        }
     }
+
+    return false;
 }
 
-function checkVerificationCode($dbh, $email, $code)
-{
-    if (!userexists($dbh, $email))
-        return false;
-
-    if (useractivated($dbh, $email))
-        return false;
-}
-
-function useractivated($dbh, $id)
+function createUser($firstname, $lastname, $pseudo, $email, $age, $pwd, $sport)
 {
 
+    global $dbh;
 
-    $q = 'SELECT actif FROM utilisateurs WHERE id = :id;';
+    $q = 'INSERT INTO users 
+	    VALUES(
+		:id,
+		:firstname,
+		:lastname,
+		:email,
+		:age,
+		:pwd,
+		:hash,
+		:ip,
+		:mt_points,
+		:sport,
+		:plan,
+		:role,
+		:status,
+		:pseudo,
+		:profile_picture);';
     $stmt = $dbh->prepare($q);
 
+    $response = $stmt->execute(
+        array(
+            'id' => getMaxID('users') + 1,
+            'firstname' => $firstname,
+            'lastname' => $lastname,
+            'pseudo' => $pseudo,
+            'email' => $email,
+            'age' => $age,
+            'pwd' => password_hash($pwd, PASSWORD_DEFAULT),
+            'hash' => md5(rand(0, 1000)),
+            'ip' => ip2long(getClientIP()),
+            'mt_points' => 100,
+            'sport' => $sport,
+            'plan' => 1,
+            'role' => 1,
+            'status' => 1,
+            'profile_picture' => NULL
+
+        )
+    );
+
+    if ($response) {
+        return true;
+    }
+
+    return false;
+}
+
+function logUser($uid, $password)
+{
+    session_unset();
+
+    $userData = getUserDataByUID($uid);
+
+
+
+    $_SESSION['uid'] = $userData['uid'];
+    $_SESSION['firstname'] = $userData['first_name'];
+    $_SESSION['lastname'] = $userData['last_name'];
+    $_SESSION['username'] = $userData['pseudo'];
+    $_SESSION['mt_points'] = $userData['mt_points'];
+    $_SESSION['ip'] = long2ip($userData['ip']);
+    $_SESSION['role'] = $userData['role'];
+    $_SESSION['status'] = $userData['status'];
+    $_SESSION['sport'] = $userData['fav_sport'];
+
+    return true;
+}
+
+function getProfilePicture($uid)
+{
+    global $dbh;
+
+    $q = 'SELECT profile_picture FROM users WHERE id = :id;';
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'id' => $uid
+        )
+    );
+    if ($status) {
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($result['profile_picture']) {
+
+            return $result['profile_picture'];
+        }
+    }
+
+    return false;
+}
+
+function getUserDataByUID($uid)
+{
+    global $dbh;
+
+    if (!userexists($uid))
+        return false;
+
+    if (filter_var($uid, FILTER_VALIDATE_EMAIL)) {
+
+        $q = 'SELECT
+        users.id as uid,
+        users.first_name,
+        users.last_name,
+        users.pseudo,
+        users.email,
+        users.age,
+        users.mt_points,
+        users.fav_sport,
+        users.event,
+        users.plan,
+        users.role,
+        users.status,
+        users.ip,
+        user_roles.id as rid,
+        user_roles.name,
+        user_roles.description,
+        user_roles.color
+        FROM user_roles
+        INNER JOIN users
+        ON user_roles.id = users.role
+        WHERE users.email = :email;';
+
+        $stmt = $dbh->prepare($q);
+
+        $status = $stmt->execute(
+            array(
+                'email' => $uid
+            )
+        );
+
+        if ($status) {
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if (count($result) == 0) {
+                return false;
+            }
+
+            return $result[0];
+        } else {
+            return false;
+        }
+    } else {
+        $q = 'SELECT
+        users.id as uid,
+        users.first_name,
+        users.last_name,
+        users.pseudo,
+        users.email,
+        users.age,
+        users.mt_points,
+        users.fav_sport,
+        users.plan,
+	users.role,
+	users.ip,
+        users.status,
+        user_roles.id as rid,
+        user_roles.name,
+        user_roles.description,
+        user_roles.color
+        FROM user_roles
+        INNER JOIN users
+        ON user_roles.id = users.role
+        WHERE users.pseudo = :pseudo;';
+
+        $stmt = $dbh->prepare($q);
+
+        $status = $stmt->execute(
+            array(
+                'pseudo' => $uid
+            )
+        );
+
+        if ($status) {
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if (count($result) == 0) {
+                return false;
+            }
+
+            return $result[0];
+        } else {
+            return false;
+        }
+    }
+    return false;
+}
+
+function getMaxID($table)
+{
+    global $dbh;
+
+    $q = 'SELECT MAX(id) FROM ' . $table . ';';
+    $stmt = $dbh->prepare($q);
+    if ($stmt->execute()) {
+        $result = $stmt->fetch();
+
+        if ($result[0])
+            return $result[0];
+
+        return 0;
+    }
+
+    return false;
+}
+
+function getAllUsers()
+{
+    global $dbh;
+
+    $q = 'SELECT id,
+    first_name,
+    last_name, 
+    email,
+    age,
+    mt_points,
+    fav_sport,
+    plan,
+    role,
+    status 
+    FROM users;';
+
+    $stmt = $dbh->prepare($q);
+
+    if ($stmt->execute()) {
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (count($result) == 0) {
+            return false;
+        }
+
+        return $result;
+    }
+
+    return false;
+}
+
+function getCardsByUID($uid)
+{
+    global $dbh;
+
+    $q = 'SELECT *, basketball_cards.id as bid
+                FROM basketball_cards INNER JOIN basketball_inventory ON basketball_cards.id = basketball_inventory.basketball_card WHERE basketball_inventory.user = :uid;';
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'uid' => $uid
+        )
+    );
+
+    if ($status) {
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $result;
+    }
+    return false;
+}
+
+function addCard(
+    $uid,
+    $id,
+    $fullName,
+    $jerseyNumber,
+    $headshotURL,
+    $position,
+    $team,
+    $teamABV,
+    $league,
+    $gp,
+    $min,
+    $fg,
+    $tp,
+    $ft,
+    $reb,
+    $ast,
+    $blk,
+    $stl,
+    $pts,
+    $overall
+) {
+    global $dbh;
+
+    if (!cardexists($id)) {
+
+        $q = 'INSERT INTO basketball_cards
+    (id,
+     full_name,
+     jersey_number,
+     headshot_url,
+     position,
+     team,
+     league,
+     gp,
+     min,
+     fg_pct,
+     tp_pct,
+     ft_pct,
+     reb,
+     ast,
+     blk,
+     stl,
+     pts,
+     overall,
+     team_abv
+     ) 
+     VALUES(
+:id,
+:full_name,
+:jersey_number,
+:headshot_url,
+:position,
+:team,
+:league,
+:gp,
+:min,
+:fg,
+:tp,
+:ft,
+:reb,
+:ast,
+:blk,
+:stl,
+:pts,
+:overall,
+:teamABV
+);';
+        $stmt = $dbh->prepare($q);
+
+
+
+        $status = $stmt->execute(
+            array(
+                'id' => $id,
+                'full_name' => $fullName,
+                'jersey_number' => $jerseyNumber,
+                'headshot_url' => $headshotURL,
+                'position' => $position,
+                'team' => $team,
+                'league' => $league,
+                'gp' => $gp,
+                'min' => $min,
+                'fg' => $fg,
+                'tp' => $tp,
+                'ft' => $ft,
+                'reb' => $reb,
+                'ast' => $ast,
+                'blk' => $blk,
+                'stl' => $stl,
+                'pts' => $pts,
+                'overall' => $overall,
+                'teamABV' => $teamABV
+
+            )
+        );
+
+        if ($status) {
+            return addCardToInventory($uid, $id);
+        }
+    } else {
+        return addCardToInventory($uid, $id);
+    }
+    return false;
+}
+
+function addCardToInventory($UID, $cardID, $inventory = 'basketball_inventory')
+{
+
+    global $dbh;
+
+    $q = 'INSERT INTO ' . $inventory .
+        ' VALUES (
+        :id,
+        :user_id,
+        :card_id);';
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'id' => getMaxID('basketball_inventory') + 1,
+            'user_id' => $UID,
+            'card_id' => $cardID
+        )
+    );
+    if ($status) {
+        return true;
+    }
+    return false;
+}
+
+function cardexists($id, $sport_cards = 'basketball_cards')
+{
+    global $dbh;
+
+    $q = 'SELECT 1 FROM ' . $sport_cards . ' WHERE id = :id;';
+    $stmt = $dbh->prepare($q);
     $status = $stmt->execute(
         array(
             'id' => $id
@@ -140,22 +515,361 @@ function useractivated($dbh, $id)
     );
 
     if ($status) {
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return $result['actif'];
+        return ($stmt->fetch(PDO::FETCH_ASSOC));
     }
 
     return false;
 }
 
-function activateuser($dbh, $id)
+function getUsersAndRoles()
 {
-    $q = 'UPDATE utilisateurs SET actif = 1 WHERE id = :id;';
+    global $dbh;
+
+    $q = 'SELECT
+    users.id as uid,
+    users.first_name,
+    users.last_name,
+    users.pseudo,
+    users.email,
+    users.age,
+    users.mt_points,
+    users.fav_sport,
+    users.plan,
+    users.role,
+    users.status,
+    user_roles.id as rid,
+    user_roles.name,
+    user_roles.description,
+    user_roles.color
+    FROM user_roles
+    INNER JOIN users
+    ON user_roles.id = users.role;';
+
+    $stmt = $dbh->prepare($q);
+
+    if ($stmt->execute()) {
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (count($result) == 0) {
+            return false;
+        }
+
+        return $result;
+    }
+
+    return false;
+}
+
+function getUserByRole($role)
+{
+    global $dbh;
+
+    $q = 'SELECT id,
+    first_name,
+    last_name,
+    pseudo,
+    email,
+    age,
+    mt_points,
+    fav_sport,
+    plan,
+    role,
+    status
+    FROM users WHERE role = :role;';
     $stmt = $dbh->prepare($q);
 
     $status = $stmt->execute(
         array(
+            'role' => $role
+        )
+    );
+
+    if ($status) {
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (count($result) == 0) {
+            return false;
+        }
+
+        return $result;
+    }
+
+    return false;
+}
+
+function searchUser($input)
+{
+    global $dbh;
+
+    $users = getUsersAndRoles();
+    $user = ['abdou'];
+
+    foreach ($users as $key => $data) {
+        if (
+            strpos(strtolower($data['last_name']), strtolower($input)) !== false
+            || strpos(strtolower($data['first_name']), strtolower($input)) !== false
+        ) {
+            array_push($user,  $data);
+        }
+    }
+
+    return $user;
+}
+
+function getUserAndRoleByUID($uid)
+{
+    global $dbh;
+
+    $q = 'SELECT
+    users.id as uid,
+    users.first_name,
+    users.last_name,
+    users.pseudo,
+    users.email,
+    users.age,
+    users.mt_points,
+    users.fav_sport,
+    users.plan,
+    users.role,
+    users.status,
+    user_roles.id as rid,
+    user_roles.name,
+    user_roles.description,
+    user_roles.color,
+    user_roles.roles_privileges
+    FROM user_roles
+    INNER JOIN users
+    ON user_roles.id = users.role
+    WHERE users.id = :uid;';
+
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'uid' => $uid
+        )
+    );
+
+    if ($status) {
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($result['uid']) {
+            return $result;
+        }
+    }
+
+    return false;
+}
+
+function getUserInfo($info)
+{
+    global $dbh;
+
+    $q = 'SELECT ' . $info . ' FROM users;';
+    $stmt = $dbh->prepare($q);
+
+    if ($stmt->execute()) {
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (count($result) > 0) {
+            return $result;
+        }
+    }
+
+    return false;
+}
+
+function getRoleName($user_id)
+{
+    global $dbh;
+
+    $q = 'SELECT name FROM user_roles INNER JOIN users ON user_roles.id = users.role AND users.id = :user_id;';
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'user_id' => $user_id
+        )
+    );
+    if ($status) {
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $result['name'] ? $result['name'] : false;
+    }
+
+    return false;
+}
+
+function getRoleByID($uid)
+{
+    global $dbh;
+
+    $q = 'SELECT * FROM user_roles WHERE id = (SELECT role FROM users WHERE users.id = :uid);';
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'uid' => $uid
+        )
+    );
+
+    if ($status) {
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (count($result) > 0) {
+            return $result;
+        }
+    }
+
+    return false;
+}
+
+function updateUserRow(
+    $table,
+    $row,
+    $value,
+    $id
+) {
+
+    global $dbh;
+
+    $q = 'UPDATE ' . $table . ' 
+    SET ' . $row . ' = "' . $value . '" 
+    WHERE id = :id;';
+
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
             'id' => $id
+        )
+    );
+    if ($status) {
+        return true;
+    }
+    return false;
+}
+
+function getClientIP()
+{
+    $ip = '127.0.0.1';
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $ip = $_SERVER['HTTP_CLIENT_IP'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    } else {
+        $ip = $_SERVER['REMOTE_ADDR'];
+    }
+
+    return $ip;
+}
+
+function createArticle($title, $content, $imagePath = null)
+{
+    global $dbh;
+
+    $q = 'INSERT INTO articles
+    VALUES(
+        :id,
+        :title,
+        :content,
+        :image,
+        :author);';
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'id' => getMaxID('articles') + 1,
+            'title' => $title,
+            'content' => $content,
+            'image' => $imagePath,
+            'author' => $_SESSION['uid']
+        )
+    );
+
+    return $status;
+}
+
+function getDataFrom($table)
+{
+
+    global $dbh;
+
+    $q = 'SELECT * FROM ' . $table . ';';
+    $stmt = $dbh->prepare($q);
+
+    if ($stmt->execute()) {
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    return false;
+}
+
+function getDataByID($id, $data = "*", $table = 'users')
+{
+    global $dbh;
+
+    $q = 'SELECT ' . $data . ' FROM ' . $table . ' WHERE id = :id;';
+    $stmt = $dbh->prepare($q);
+
+    if ($stmt->execute(['id' => $id])) {
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    return false;
+}
+
+function createEvent(
+    $title,
+    $description,
+    $begin,
+    $end,
+    $rules,
+    $reward_first,
+    $reward_second,
+    $reward_third,
+    $reward_others,
+    $image
+) {
+
+    global $dbh;
+
+    $q = 'INSERT INTO events (
+            id,
+            title,
+            description,
+            begin,
+            end,
+            rules,
+            reward_first,
+            reward_second,
+            reward_third,
+            reward_others,
+            image
+        ) 
+        VALUES
+        (
+            :id,
+            :title,
+            :description,
+            :begin,
+            :end,
+            :rules,
+            :reward_first,
+            :reward_second,
+            :reward_third,
+            :reward_others,
+            :image
+        );';
+
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'id' => getMaxID('events') + 1,
+            'title' => $title,
+            'description' => $description,
+            'begin' => $begin,
+            'end' => $end,
+            'rules' => $rules,
+            'reward_first' => $reward_first,
+            'reward_second' => $reward_second,
+            'reward_third' => $reward_third,
+            'reward_others' => $reward_others,
+            'image' => $image
         )
     );
 
@@ -163,79 +877,57 @@ function activateuser($dbh, $id)
 }
 
 
-// * End Utils
-
-// * Signup
-
-
-
-function invalidAge($age)
+function joinEvent($user_id, $event_id)
 {
-    if (!is_numeric($age))
-        return true;
+    global $dbh;
 
-    return $age < 18;
-}
-
-function createUser($dbh, $nom, $prenom, $age, $email, $mdp)
-{
-    $q = 'INSERT INTO utilisateurs (id, nom, prenom, age, email, mdp, hash, actif) VALUES(:id, :nom, :prenom, :age, :email, :mdp, :hash, :actif);';
+    $q = 'UPDATE users SET event = ' . $event_id . ' WHERE users.id = :user_id;';
     $stmt = $dbh->prepare($q);
-
-    $code = rand(0, 1000);
-    $hash = md5($code);
-
-
-
-    $id = getmaxID($dbh) + 1;
-
-
     $status = $stmt->execute(
         array(
-            'id' => $id,
-            'nom' => $nom,
-            'prenom' => $prenom,
-            'age' => $age,
-            'email' => $email,
-            'mdp' => password_hash($mdp, PASSWORD_DEFAULT),
-            'hash' => $hash,
-            'actif' => 0
+            'user_id' => $user_id
+        )
+    );
+
+    return $status ? true : false;
+}
+
+function quitEvent($user_id)
+{
+    global $dbh;
+
+    $q = 'UPDATE users SET event = null WHERE users.id = :user_id;';
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'user_id' => $user_id
+        )
+    );
+
+    return $status ? true : false;
+}
+
+function getDoubleDigitFormat($date)
+{
+    if (strlen($date) == 1) return "0" . $date;
+    return $date;
+}
+
+function getEventParticipants($event_id)
+{
+    global $dbh;
+
+    $q = 'SELECT * FROM users WHERE event = :event_id;';
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'event_id' => $event_id
         )
     );
 
     if ($status) {
-        sendVerificationMail($id, $email, $code);
-        return true;
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $result;
     }
-
-    return false;
 }
-
-
-// * End Signup
-
-
-// * Login
-
-function validpassword($dbh, $email, $mdp)
-{
-    $q = 'SELECT mdp FROM utilisateurs WHERE email = :email;';
-    $stmt = $dbh->prepare($q);
-    $status = $stmt->execute(
-        array(
-            'email' => $email
-        )
-    );
-
-    if ($status) {
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($result['mdp']) {
-            return password_verify($mdp, $result['mdp']);
-        }
-    }
-
-    return false;
-}
-
-// * End Login

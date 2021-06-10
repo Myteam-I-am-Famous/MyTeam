@@ -1,87 +1,213 @@
-<?php session_start(); ?>
 <?php
 
-function incrementer_compteur(string $fichier): void
+// include 'database_handler.php';
+
+
+$dbname = "myteam_rebuild";
+$host = 'localhost';
+$dsn = "mysql:dbname=" . $dbname . ";host=" . $host;
+
+$user = "myteam";
+$password = "myteam";
+
+try {
+    $dbh = new PDO($dsn, $user, $password);
+    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    echo 'Erreur de connexion à la base de données : ' . $e->getMessage();
+    die();
+}
+
+
+function getProfilePictureSrc($uid)
 {
+    global $dbh;
 
-    $compteur = 1;
-    if (file_exists($fichier)) {
-        $compteur = (int)file_get_contents($fichier);
-        $compteur++;
+    $q = 'SELECT profile_picture FROM users WHERE id = :id;';
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'id' => $uid
+        )
+    );
+    if ($status) {
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
+        if ($result['profile_picture']) {
 
-        $file = fopen($fichier, 'w');
-        fwrite($file, $compteur);
-
-        fclose($file);
-    } else {
-        file_put_contents($fichier, "1");
+            return $result['profile_picture'];
+        }
     }
+
+    return false;
 }
+?>
+<header>
 
-function nombre_vues(): string
-{
-    $fichier = dirname('.') . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'compteur.txt';
-    incrementer_compteur($fichier);
-    return file_get_contents($fichier);
-}
+    <div class="fader"></div>
 
-$total = nombre_vues();
+    <nav>
 
-var_dump($total);
+        <img src="./assets/images/logo.png" alt="" id="nav-logo">
 
- ?>
-<!DOCTYPE html>
-<html lang="en">
+        <div class="searchbar-container">
+            <input type="text" id="searchbar" placeholder="Tappez quelques chose...">
+            <div id="auto-complete">
 
-<head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Myteam</title>
-    <link rel="stylesheet" href="css/style.css" />
-    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" />
-    <script src="https://kit.fontawesome.com/7d4db968a5.js" crossorigin="anonymous"></script>
-    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
-     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-</head>
 
-<body>
-    <header>
-        <div class="logo-container">
-            <img src="./assets/images/myteam_logo_football.png" alt="logo" class="logo" />
-            <h1>MyTeam</h1>
-            <h4>Le site des amateurs de sports</h4>
-            <!-- <video src="assets/videos/myteam_football.mp4" autoplay loop></video> -->
+            </div>
         </div>
 
-        <nav>
-            <ul class="nav-links">
-                <li><a href="#" class="nav-link">Acceuil</a></li>
-                <li><a href="myteam/index.html" class="nav-link">My Team</a></li>
-                <li><a href="#" class="nav-link">Sports</a></li>
-                <li><a href="#" class="nav-link">Boutique</a></li>
-                <li><a href="#" class="nav-link">Actualités</a></li>
-                <li><a href="subsciption.php" class="nav-link">S'abonner</a></li>
-                <!-- <li><a href="#" class="nav-link"></a></li> -->
-            </ul>
-        </nav>
+        <ul class="nav-links">
 
-        <div class="account-container">
-            <?php if (isset($_SESSION['uid'])) {
-                echo '
-                <a href="#">Mon compte</a>
-                <a href="./includes/connection_check.php">Se déconnecter</a>
-                ';
-            } else {
-                echo "
-                <a href='login.php?status=login'>Se connecter</a>
-                <a href='login.php?status=signup'>S'inscrire</a>
-                ";
-            }
+            <li><a href="index.php" class="nav-link">Acceuil</a></li>
+            <li><a href="articles.php" class="nav-link">News</a></li>
+            <li><a id="nav-joueur" href="inventory.php" class="nav-link">Joueurs</a></li>
+            <li><a href="event.php?id=2" class="nav-link">Evénements</a></li>
+            <?php echo !isset($_SESSION['uid']) ?
+                ' <li><a href="login.php" class="nav-link">Se connecter</a></li>'
+                :
+                // '<li><a href="logout.php" id="live-status" class="nav-link">Live •</a></li>';
+                ' <li><a href="logout.php" class="nav-link">Se deconnecter</a></li>'
             ?>
+        </ul>
 
+
+        <?php
+
+
+        echo isset($_SESSION['uid']) ? "<p>Uid : " . $_SESSION['uid'] . "</p>" : "Logged out";
+
+        ?>
+
+
+        <div class="nav-profile">
+            <img id="nav-profile-picture" src="<?php echo isset($_SESSION['uid']) ? 'uploads/' . $_SESSION['username']  . '/' .  getProfilePictureSrc($_SESSION['uid']) : 'https://besthqwallpapers.com/Uploads/15-2-2019/80626/thumb2-levi-ackerman-darkness-attack-on-titan-levi-artwork.jpg' ?>" alt="profile picture" srcset="">
+            <i class="fas fa-angle-down"></i>
         </div>
-    </header>
+
+    </nav>
+
+    <div id="menu">
+        <div id="menu-cls-btn">
+            <i class="fas fa-times"></i>
+        </div>
+        <div class="menu-title">
+            <h1><span class="white">My</span><span class="yellow">Team</span></h1>
+        </div>
+        <div class="menu-profile">
+            <div class="profile-info">
+                <img src="<?php echo isset($_SESSION['uid']) ? 'uploads/' . $_SESSION['username']  . '/' .  getProfilePictureSrc($_SESSION['uid']) : 'https://besthqwallpapers.com/Uploads/15-2-2019/80626/thumb2-levi-ackerman-darkness-attack-on-titan-levi-artwork.jpg' ?>" alt="profile picture" srcset="">
+                <form action="change_picture.php" method="POST" enctype="multipart/form-data">
+                    <label for="pfp-input">Changer la photo de profil</label>
+                    <input id="pfp-input" name="image" type="file" accept="image/*">
+                    <button type="submit" id="change-picture" name="submit">Change</button>
+                </form>
+                <h3><?php echo isset($_SESSION['firstname']) ? $_SESSION['firstname'] . ' ' . $_SESSION['lastname'] : 'temp_user'; ?></h3>
+                <p>@<?php echo isset($_SESSION['username']) ? $_SESSION['username'] : 'temp_user'; ?></p>
+            </div>
+            <div class="profile-stats">
+                <div class="profile-stat">
+                    <h3>2445</h3>
+                    <p>Amis</p>
+                </div>
+                <div class="profile-stat">
+                    <h3>400</h3>
+                    <p>Posts</p>
+                </div>
+                <div class="profile-stat">
+                    <h3>89</h3>
+                    <p>Rang</p>
+                </div>
+            </div>
+        </div>
+        <div class="menu-options">
+            <div class="menu-option">
+                <i class="fas fa-user"></i>
+                <h3>Mon Compte</h3>
+            </div>
+            <div class="menu-option highlighted-menu">
+                <i class="fas fa-user"></i>
+                <h3><a href="inventory.php?display=table">Mon Inventaire</a></h3>
+            </div>
+            <div class="menu-option">
+                <i class="fas fa-basketball-ball"></i>
+                <h3><a href="shop_card.php">Packer des cartes</a></h3>
+            </div>
+            <div class="menu-option">
+                <i class="fas fa-pen"></i>
+                <h3><a href="publish_article.php">Publier un article</a></h3>
+            </div>
+            <div class="menu-option">
+                <i class="fas fa-list-alt"></i>
+                <h3><a href="articles.php">Actualités</a></h3>
+            </div>
+            <div class="menu-option">
+                <i class="fas fa-comments"></i>
+                <h3>Discussion</h3>
+            </div>
+            <div class="menu-option">
+                <i class="fas fa-futbol"></i>
+                <h3>Classement</h3>
+            </div>
+            <div class="menu-option">
+                <i class="fas fa-shopping-cart"></i>
+                <h3>Magasin</h3>
+            </div>
+        </div>
+        <div class="favorites ">
+            <div class="fav-title highlighted-menu">
+                <h3>Clubs Favoris</h3>
+                <i class="fas fa-plus"></i>
+            </div>
+            <div class="teams">
+
+                <div class="team">
+                    <img class="menu-team-logo" src="./assets/icons/Manchester_City_FC_badge.svg" alt="team logo" srcset="">
+                    <h4>Manchester City</h4>
+                </div>
+                <div class="team">
+                    <img class="menu-team-logo" src="./assets/icons/Manchester_City_FC_badge.svg" alt="team logo" srcset="">
+                    <h4>Tottenham Hotspur</h4>
+                </div>
+                <div class="team">
+                    <img class="menu-team-logo" src="./assets/icons/Manchester_City_FC_badge.svg" alt="team logo" srcset="">
+                    <h4>Paris Saint Germain</h4>
+                </div>
+
+                <button class="view-more">View More</button>
+
+            </div>
+        </div>
+
+        <div class="saved">
+            <div class="saved-title highlighted-menu">
+                <h3>Saved Match</h3>
+                <i class="fas fa-plus"></i>
+            </div>
+            <div class="saved-matches">
+                <div class="saved-match">
+                    <img src="./assets/icons/Manchester_City_FC_badge.svg" class="menu-team-logo" alt="ext" class="ext">
+                    <h4 class="score">2-1</h4>
+                    <img src="./assets/icons/Manchester_City_FC_badge.svg" class="menu-team-logo" alt="int" class="int">
+                    <h4 class="match-abv">MCI - RFC</h4>
+                    <h4 class="match-status">Live '56</h4>
+                </div>
+                <div class="saved-match">
+                    <img src="./assets/icons/Manchester_City_FC_badge.svg" class="menu-team-logo" alt="ext" class="ext">
+                    <h4 class="score">7-1</h4>
+                    <img src="./assets/icons/Manchester_City_FC_badge.svg" class="menu-team-logo" alt="int" class="int">
+                    <h4 class="match-abv">TOT - LMM</h4>
+                    <h4 class="match-status">SAT</h4>
+                </div>
+
+                <button class="view-more">View More</button>
+
+            </div>
+        </div>
+    </div>
+
+
+
+</header>
+<script src="scripts/searchbar.js"></script>
