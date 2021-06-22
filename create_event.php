@@ -1,3 +1,12 @@
+<?php session_start();
+
+if(!isset($_SESSION['role']) || $_SESSION['role'] != 2){
+        header('location: ../home');
+        exit;
+}
+
+?>
+
 <html lang="en">
 
 <head>
@@ -16,27 +25,27 @@
 
     <div class="create-event-container">
 
-        <h1>Create new event</h1>
+        <h1>CREER UN EVENEMENT !</h1>
 
         <form class="create-event" action="create_event_check.php" method="POST" enctype="multipart/form-data">
 
             <div class="input">
-                <label for="title">Title</label>
+                <label for="title">TITRE</label>
                 <input type="text" name="title" id="title">
             </div>
             <div class="input-row">
 
                 <div class="input">
-                    <label for="begin">START AT</label>
+                    <label for="begin">DEBUT</label>
                     <input type="date" name="begin" id="begin">
                 </div>
                 <div class="input">
-                    <label for="begin">END AT</label>
+                    <label for="begin">FIN</label>
                     <input type="date" name="end" id="end">
                 </div>
             </div>
             <div class="input">
-                <label for="description">description</label>
+                <label for="description">DESCRIPTION</label>
                 <textarea name="description" id="description" cols="50" rows="10"></textarea>
             </div>
 
@@ -58,23 +67,23 @@
                 </label>
             </div>
             <label class="rule">
-                Reward first
+                RECOMPENSE 1er
                 <input type="number" name="reward_first" min="10">
             </label>
             <label class="rule">
-                Reward second
+                RECOMPENSE 2nd
                 <input type="number" name="reward_second" min="10">
             </label>
             <label class="rule">
-                Reward third
+                RECOMPENSE 3ieme
                 <input type="number" name="reward_third" min="10">
             </label>
             <label class="rule">
-                Reward others
+                RECOMPENSE AUTRES
                 <input type="number" name="reward_others" min="10">
             </label>
 
-            <button type="submit" name="submit">CREATE EVENT !</button>
+            <button type="submit" name="submit">CREER EVENEMENT !</button>
 
         </form>
     </div>

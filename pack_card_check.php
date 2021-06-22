@@ -9,12 +9,12 @@ header('Access-Control-Allow-Origin: *');
 
 
 if (!isset($_SESSION['uid'])) {
-    header("location: shop_card.php?code=accessdenied");
+    header("location: shop.php?code=accessdenied");
     exit;
 }
 
 if (!isset($_POST['id'])) {
-    header('location: shop_card.php?code=invalidid');
+    header('location: shop.php?code=invalidid');
     exit;
 }
 
@@ -52,7 +52,7 @@ if (!$hasCard) {
         $_POST['stl'],
         $_POST['ppg'],
         98
-);
+    );
 
     echo json_encode([
         'id' => $_POST['id'],

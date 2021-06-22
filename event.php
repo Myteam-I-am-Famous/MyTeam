@@ -11,6 +11,10 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
     header('location: index.php?code=noeventfound');
     exit;
 }
+if (isset($_SESSION['status']) && $_SESSION['status'] == 0) {
+    header('location: ../event_list.php?blockunverified');
+    exit;
+}
 setlocale(LC_TIME, 'fr_FR.utf8', 'fra');
 
 
@@ -48,6 +52,7 @@ $userEvent = getDataByID($_SESSION['uid'], 'event')[0];
 
 <head>
     <meta charset="UTF-8">
+    <base href="http://monequipe.site/">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Events</title>
@@ -61,7 +66,12 @@ $userEvent = getDataByID($_SESSION['uid'], 'event')[0];
 
 
     <header>
-        <div class="event-logo">MyTeam</div>
+	<a href="home">
+			<div class="event-logo">
+				
+				<img src="assets/images/logo.png" alt="logo"/>
+			</div>
+	</a>
 
         <ul class="nav-links">
             <li><a href="#" class="nav-link">Forum</a></li>
@@ -81,7 +91,7 @@ $userEvent = getDataByID($_SESSION['uid'], 'event')[0];
 
                 <div class="vignette"></div>
 
-                <!-- <div class="sparks"></div> -->
+                 <div class="sparks"></div>
 
                 <div class="event-main">
 
@@ -127,22 +137,6 @@ $userEvent = getDataByID($_SESSION['uid'], 'event')[0];
 
                     <div id="participant-list">
                         <h3>Liste des participants</h3>
-                        <div class="participant">
-                            <div class="id">
-                                <i class="fas fa-user"></i>
-                                <p>25</p>
-                            </div>
-                            <p>Exemple</p>
-                            <img src="https://get.wallhere.com/photo/Jump-Force-Son-Goku-Super-Saiyan-hero-1557785.jpg" alt="participant-pfp">
-                        </div>
-                        <div class="participant">
-                            <div class="id">
-                                <i class="fas fa-user"></i>
-                                <p>25</p>
-                            </div>
-                            <p>Exemple 2</p>
-                            <img src="https://get.wallhere.com/photo/Jump-Force-Son-Goku-Super-Saiyan-hero-1557785.jpg" alt="participant-pfp">
-                        </div>
                         <?php
 
                         $participants = getEventParticipants($event['id']);

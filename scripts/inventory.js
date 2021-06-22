@@ -1,6 +1,9 @@
 const cards = document.querySelectorAll(".myteam-card");
 const overall = document.getElementById("overall");
 const inventoryTableRows = document.querySelectorAll(".inventory-table-row");
+const inventoryCardsContainer = document.querySelector(
+  ".inventory-cards-container"
+);
 let targetCard = null;
 let canSelectCard = false;
 
@@ -51,6 +54,10 @@ let slots = [
     slotNumber: 5,
   },
 ];
+let players = [];
+
+updateTeamOverall();
+initializeInventory();
 
 const baseImageURL = "http://content.mtdb.com/www/nba2k20/"; // firstname-lastname.png
 
@@ -150,24 +157,45 @@ function swapCards(firstCard, secondCard) {
     cardOrder.push(card.id.split("-")[1]);
   });
 
-  let teamOverall = 0;
-
-  slots.forEach((slot) => {
-    teamOverall += slot.overall;
-  });
-
-  overall.textContent = "Team Overall : " + parseInt(teamOverall / 5);
+  updateTeamOverall();
 
   return true;
 }
 
-function imageExists(image_url) {
-  var http = new XMLHttpRequest();
+function updateTeamOverall() {
+  let teamOverall = 0;
+  slots.forEach((slot) => {
+    teamOverall += slot.overall;
+  });
 
-  http.open("HEAD", image_url, true);
-  http.send();
+  const xhr = new XMLHttpRequest();
 
-  return http.status != 404;
+  xhr.onload = () => {
+    overall.textContent = "Team Overall : " + parseInt(teamOverall / 5);
+  };
+
+  const data = new FormData();
+
+  data.append("team_overall", parseInt(teamOverall / 5));
+
+  xhr.open("POST", "inventory_ajax.php", true);
+  xhr.send(data);
+}
+
+function initializeInventory() {
+  const xhr = new XMLHttpRequest();
+
+  xhr.onload = () => {
+    const response = JSON.parse(xhr.responseText);
+    organizeInventory(response.data);
+  };
+
+  const data = new FormData();
+
+  data.append("initialize", true);
+
+  xhr.open("POST", "inventory_ajax.php", true);
+  xhr.send(data);
 }
 
 function checkImage(imageSrc, good, bad) {
@@ -175,4 +203,32 @@ function checkImage(imageSrc, good, bad) {
   img.onload = good;
   img.onerror = bad;
   img.src = imageSrc;
+}
+
+function organizeInventory(cards) {
+	if(cards.length == 0){
+		let emptyInventory = '<div class="empty-inventory"><h1>Inventaire vide 😥</h1>';
+		emptyInventory += '<p>Achetez des cartes au shop <a href="myteam-shop"><span class="blue">MY</span><span class="red">TEAM</span> SHOP</a>';
+		inventoryCardsContainer.innerHTML += emptyInventory;
+	}
+  cards.forEach((card) => {
+    if (players.includes(card.id)) {
+      let newCard = `<div class="inventory-card" id="card-${card.id}-${card.variant}">`;
+      newCard += `<img src="${card.variantURL}" alt="" srcset="">`;
+      newCard += "</div>";
+      document.getElementById(card.id + "-row").innerHTML += newCard;
+    } else {
+      players.push(card.id);
+      let newInventoryCards = `<div class="inventory-cards" id="${card.id}-row">`;
+      newInventoryCards += '<div class="inventory-card-name">';
+      newInventoryCards += `<h3>${card.full_name}</h3>`;
+      newInventoryCards += "</div>";
+      newInventoryCards += `<div class="inventory-card" id="card-${card.id}-${card.variant}">`;
+      newInventoryCards += `<img src="${card.variantURL}" alt="" srcset="">`;
+      newInventoryCards += "</div>";
+      newInventoryCards += "</div>";
+
+      inventoryCardsContainer.innerHTML += newInventoryCards;
+    }
+  });
 }

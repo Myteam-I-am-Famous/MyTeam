@@ -17,12 +17,19 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  z-index: 10;
 
   padding: 1rem;
   color: white;
   position: absolute;
   top: 0;
   left: 0;
+}
+
+header a{
+color: inherit;
+text-decoration:none;
+
 }
 
 .event-menu {
@@ -48,6 +55,15 @@ header {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+.event-logo{
+	display:flex;
+	align-items:center;
+}
+
+.event-logo img{
+	height: 70px;
 }
 
 #e-p-1 {
@@ -211,6 +227,9 @@ header {
 /*!Test */
 
 /*  */
+.vignette{
+  pointer-events:none;
+}
 .vignette:after {
   content: "";
   height: 100vh;

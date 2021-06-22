@@ -2,6 +2,13 @@
 
 include 'database_handler.php';
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
+//Load Composer's autoloader
+require 'vendor/autoload.php';
+
 function aresetAndNotEmpty($elements)
 {
     foreach ($elements as $element) {
@@ -109,12 +116,58 @@ function checkuserpassword($uid, $password)
     return false;
 }
 
-function createUser($firstname, $lastname, $pseudo, $email, $age, $pwd, $sport)
+function sendVerificationMail($id, $to, $code)
+{
+    $mail = new PHPMailer(true);
+
+    try {
+        $mail->isSMTP();
+        $mail->SMTPAuth = false;
+        $mail->SMTPSecure = false;
+        $mail->SMTPAutoTLS = false;
+
+        $mail->Host = 'localhost';
+        $mail->Port = 25;
+
+        $mail->isHTML(true);
+        $mail->SetFrom('no-reply@myteam.fr', '[MyTeam]');
+	$mail->Subject = "Confirmation d'inscription";
+	$hashedCode = md5($code);
+        $mail->Body = 'Votre code de vérification est :'
+            . $code
+            . "<br><a href='http://monequipe.site/code_check.php?id={$id}&code={$hashedCode}'>Cliquez sur ce lien pour vérifier votre compte</a>";
+        $mail->CharSet = 'utf-8';
+
+        $mail->AddAddress($to);
+
+        $mail->Send();
+        echo 'Mail sent';
+    } catch (Exception $e) {
+        echo 'Message could not be sent. Mail Error: ' . $mail->ErrorInfo;
+    }
+}
+
+function createUser($firstname, $lastname, $pseudo, $email, $age, $pwd)
 {
 
     global $dbh;
 
-    $q = 'INSERT INTO users 
+    $q = 'INSERT INTO users(
+        id,
+        first_name,
+        last_name,
+        email,
+        age,
+        password,
+        hash,
+        ip,
+        mt_points,
+        plan,
+        role,
+        status,
+        pseudo,
+        profile_picture
+    )
 	    VALUES(
 		:id,
 		:firstname,
@@ -125,7 +178,6 @@ function createUser($firstname, $lastname, $pseudo, $email, $age, $pwd, $sport)
 		:hash,
 		:ip,
 		:mt_points,
-		:sport,
 		:plan,
 		:role,
 		:status,
@@ -133,53 +185,81 @@ function createUser($firstname, $lastname, $pseudo, $email, $age, $pwd, $sport)
 		:profile_picture);';
     $stmt = $dbh->prepare($q);
 
+    $id = getMaxID('users') + 1;
+    $code = rand(1000, 10000);
+
     $response = $stmt->execute(
         array(
-            'id' => getMaxID('users') + 1,
-            'firstname' => $firstname,
-            'lastname' => $lastname,
-            'pseudo' => $pseudo,
-            'email' => $email,
-            'age' => $age,
+            'id' => $id,
+            'firstname' => htmlspecialchars($firstname),
+            'lastname' => htmlspecialchars($lastname),
+            'pseudo' => htmlspecialchars($pseudo),
+            'email' => htmlspecialchars($email),
+            'age' => htmlspecialchars($age),
             'pwd' => password_hash($pwd, PASSWORD_DEFAULT),
-            'hash' => md5(rand(0, 1000)),
+            'hash' => md5($code),
             'ip' => ip2long(getClientIP()),
             'mt_points' => 100,
-            'sport' => $sport,
             'plan' => 1,
             'role' => 1,
-            'status' => 1,
+            'status' => 0,
             'profile_picture' => NULL
 
         )
     );
 
-    if ($response) {
+    if ($response) 
+    {
+
+	    sendVerificationMail($id, $email, $code);
         return true;
     }
 
     return false;
 }
 
-function logUser($uid, $password)
+
+function logUser($uid)
 {
     session_unset();
 
     $userData = getUserDataByUID($uid);
-
-
 
     $_SESSION['uid'] = $userData['uid'];
     $_SESSION['firstname'] = $userData['first_name'];
     $_SESSION['lastname'] = $userData['last_name'];
     $_SESSION['username'] = $userData['pseudo'];
     $_SESSION['mt_points'] = $userData['mt_points'];
-    $_SESSION['ip'] = long2ip($userData['ip']);
+    // $_SESSION['ip'] = long2ip($userData['ip']);
     $_SESSION['role'] = $userData['role'];
     $_SESSION['status'] = $userData['status'];
-    $_SESSION['sport'] = $userData['fav_sport'];
+
+
+
 
     return true;
+}
+
+function updateUserStatus($uid, $status)
+{
+    global $dbh;
+    $q = 'UPDATE users
+    SET status = :status
+    WHERE id = :uid;';
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'status' => $status,
+            'uid' => $uid
+        )
+    );
+
+    return $status;
+}
+
+function isAdmin()
+{
+    return $_SESSION['role'] == 2;
 }
 
 function getProfilePicture($uid)
@@ -222,7 +302,6 @@ function getUserDataByUID($uid)
         users.email,
         users.age,
         users.mt_points,
-        users.fav_sport,
         users.event,
         users.plan,
         users.role,
@@ -265,10 +344,9 @@ function getUserDataByUID($uid)
         users.email,
         users.age,
         users.mt_points,
-        users.fav_sport,
         users.plan,
-	users.role,
-	users.ip,
+	    users.role,
+	    users.ip,
         users.status,
         user_roles.id as rid,
         user_roles.name,
@@ -326,14 +404,14 @@ function getAllUsers()
 
     $q = 'SELECT id,
     first_name,
-    last_name, 
+    last_name,
     email,
     age,
     mt_points,
     fav_sport,
     plan,
     role,
-    status 
+    status
     FROM users;';
 
     $stmt = $dbh->prepare($q);
@@ -418,7 +496,7 @@ function addCard(
      pts,
      overall,
      team_abv
-     ) 
+     )
      VALUES(
 :id,
 :full_name,
@@ -729,8 +807,8 @@ function updateUserRow(
 
     global $dbh;
 
-    $q = 'UPDATE ' . $table . ' 
-    SET ' . $row . ' = "' . $value . '" 
+    $q = 'UPDATE ' . $table . '
+    SET ' . $row . ' = "' . $value . '"
     WHERE id = :id;';
 
     $stmt = $dbh->prepare($q);
@@ -759,9 +837,10 @@ function getClientIP()
     return $ip;
 }
 
-function createArticle($title, $content, $imagePath = null)
+function createArticle($title, $content, $caption, $author, $imagePath = null)
 {
     global $dbh;
+    $date = new DateTime("now");
 
     $q = 'INSERT INTO articles
     VALUES(
@@ -769,7 +848,10 @@ function createArticle($title, $content, $imagePath = null)
         :title,
         :content,
         :image,
-        :author);';
+        :author,
+        :caption,
+        :date
+        );';
     $stmt = $dbh->prepare($q);
     $status = $stmt->execute(
         array(
@@ -777,19 +859,24 @@ function createArticle($title, $content, $imagePath = null)
             'title' => $title,
             'content' => $content,
             'image' => $imagePath,
-            'author' => $_SESSION['uid']
+            'author' => $author,
+            'caption' => $caption,
+            'date' => strtotime($date->format('Y/m/d h:i:s'))
         )
     );
 
     return $status;
 }
 
-function getDataFrom($table)
+function getDataFrom($table, $orderBy = '', $direction = 'DESC')
 {
 
     global $dbh;
 
-    $q = 'SELECT * FROM ' . $table . ';';
+    if ($orderBy != '')
+        $q = 'SELECT * FROM ' . $table . ' ORDER BY ' . $orderBy . ' ' . $direction . ';';
+    else
+        $q = 'SELECT * FROM ' . $table . ';';
     $stmt = $dbh->prepare($q);
 
     if ($stmt->execute()) {
@@ -840,7 +927,7 @@ function createEvent(
             reward_third,
             reward_others,
             image
-        ) 
+        )
         VALUES
         (
             :id,
@@ -931,3 +1018,422 @@ function getEventParticipants($event_id)
         return $result;
     }
 }
+
+
+function createForumSubject($title, $content, $author, $category)
+{
+    global $dbh;
+    $date = new DateTime("now");
+
+    $q = 'INSERT INTO forum_subjects
+    (
+        id,
+        title,
+        content,
+        author,
+        last_activity,
+        category,
+        status
+    )
+    VALUES
+    (
+        :id,
+        :title,
+        :content,
+        :author,
+        :last_activity,
+        :category,
+        :status
+    );';
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'id' => getMaxID('forum_subjects') + 1,
+            'title' => $title,
+            'content' => $content,
+            'author' => $author,
+            'last_activity' => strtotime($date->format('Y/m/d h:i:s')),
+            'category' => $category,
+            'status' => 1
+
+        )
+    );
+
+    return $status;
+}
+
+function getForumLikes($forum, $value = 1)
+{
+    global $dbh;
+
+    $q = 'SELECT COUNT(*) as cnt
+    FROM forum_likes_dislikes
+    WHERE forum = :forum
+    AND value = :value;';
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'forum' => $forum,
+            'value' => $value
+        )
+    );
+    if ($status) {
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['cnt'];
+    }
+    return false;
+}
+
+function getForumLiked($forum, $user, $value = 1)
+{
+    global $dbh;
+
+    $q = 'SELECT COUNT(*) as cnt
+    FROM forum_likes_dislikes
+    WHERE forum = :forum
+    AND user = :user
+    AND value = :value;';
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'forum' => $forum,
+            'user' => $user,
+            'value' => $value
+        )
+    );
+    if ($status) {
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['cnt'];
+    }
+    return false;
+}
+
+function getReactionLikes($reaction, $value = 1)
+{
+    global $dbh;
+
+    $q = 'SELECT COUNT(*) as cnt
+    FROM reaction_likes_dislikes
+    WHERE reaction = :reaction
+    AND value = :value;';
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'reaction' => $reaction,
+            'value' => $value
+        )
+    );
+    if ($status) {
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['cnt'];
+    }
+    return false;
+}
+
+function getReactionLiked($reaction, $user, $value = 1)
+{
+    global $dbh;
+
+    $q = 'SELECT COUNT(*) as cnt
+    FROM reaction_likes_dislikes
+    WHERE reaction = :reaction
+    AND user = :user
+    AND value = :value;';
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'reaction' => $reaction,
+            'user' => $user,
+            'value' => $value
+        )
+    );
+    if ($status) {
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['cnt'];
+    }
+    return false;
+}
+
+function createForumSubjectReaction($reaction, $author, $forum)
+{
+    global $dbh;
+    $date = new DateTime('NOW');
+
+    $q = 'INSERT INTO reactions
+    (
+        id,
+        reaction,
+        date,
+        user,
+        forum
+    )
+    VALUES
+    (
+        :id,
+        :reaction,
+        :date,
+        :user,
+        :forum
+    );';
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'id' => getMaxID('reactions') + 1,
+            'reaction' => $reaction,
+            'date' => strtotime($date->format('Y/m/d h:i:s')),
+            'user' => $author,
+            'forum' => $forum
+        )
+    );
+
+    return $status;
+}
+
+function getForumReactionCount($forum)
+{
+
+    global $dbh;
+
+    $q = 'SELECT COUNT(*) as cnt
+    FROM reactions
+    WHERE forum = :forum;';
+    $stmt = $dbh->prepare($q);
+
+    $status = $stmt->execute(
+        array(
+            'forum' => $forum
+        )
+    );
+
+    if ($status) {
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['cnt'];
+    }
+    return 0;
+}
+
+
+function modifyArticle($id, $title, $caption, $content, $image = null)
+{
+
+    global $dbh;
+
+    if ($image != null) {
+        $q = 'UPDATE articles SET
+    title = :title,
+    content = :content,
+    caption = :caption,
+    image = :image
+    WHERE id = :id;';
+
+        $stmt = $dbh->prepare($q);
+        $status = $stmt->execute(
+            array(
+                'title' => htmlspecialchars($title),
+                'content' => htmlspecialchars($content),
+                'caption' => htmlspecialchars($caption),
+                'image' => htmlspecialchars($image),
+                'id' => htmlspecialchars($id)
+            )
+        );
+    } else {
+        $q = 'UPDATE articles SET
+    title = :title,
+    content = :content,
+    caption = :caption
+    WHERE id = :id;';
+
+        $stmt = $dbh->prepare($q);
+        $status = $stmt->execute(
+            array(
+                'title' => htmlspecialchars($title),
+                'content' => htmlspecialchars($content),
+                'caption' => htmlspecialchars($caption),
+                'id' => htmlspecialchars($id)
+            )
+        );
+    }
+
+
+    return $status;
+}
+
+function getActiveMenu($activeMenu, $menu)
+{
+    return (isset($activeMenu) && $activeMenu == $menu);
+}
+
+function getProfilePictureSrc($uid)
+{
+    global $dbh;
+
+    $q = 'SELECT profile_picture FROM users WHERE id = :id;';
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'id' => $uid
+        )
+    );
+    if ($status) {
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($result['profile_picture']) {
+
+            return $result['profile_picture'];
+        }
+    }
+
+    return false;
+}
+
+function getUserScore($uid)
+{
+    global $dbh;
+    $q = 'SELECT SUM(value) as sum FROM forum_likes_dislikes WHERE user = :user;';
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'user' => $uid
+        )
+    );
+    if ($status) {
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['sum'];
+    }
+
+    return false;
+}
+
+function getUserForumCount($uid)
+{
+    global $dbh;
+    $q = 'SELECT COUNT(*) as cnt FROM forum_subjects WHERE author = :user;';
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'user' => $uid
+        )
+    );
+    if ($status) {
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['cnt'];
+    }
+
+    return false;
+}
+
+function getUsersByStatus($status)
+{
+    global $dbh;
+
+    $q = 'SELECT * FROM users
+    WHERE status = :status;';
+    $stmt = $dbh->prepare($q);
+
+    $status = $stmt->execute(
+        array(
+            'status' => $status
+        )
+    );
+
+    if ($status) {
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (count($result) > 0)
+            return $result;
+    }
+    return false;
+}
+
+function getUserStatus($uid, $status)
+{
+    global $dbh;
+
+    $q = 'SELECT * FROM users
+    WHERE status = :status
+    AND id = :uid;';
+    $stmt = $dbh->prepare($q);
+
+    $status = $stmt->execute(
+        array(
+            'uid' => $uid,
+            'status' => $status
+        )
+    );
+
+    if ($status) {
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (count($result) > 0)
+            return $result;
+    }
+    return false;
+}
+
+function getUsersStatusCount($status)
+{
+    global $dbh;
+    $q = 'SELECT COUNT(*) as cnt FROM users WHERE status = :status;';
+    $stmt = $dbh->prepare($q);
+    $status = $stmt->execute(
+        array(
+            'status' => $status
+        )
+    );
+    if ($status) {
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['cnt'];
+    }
+
+    return false;
+}
+
+function checkVerificationCode($dbh, $email, $code)
+{
+    if (!userexists($email))
+        return false;
+
+    if (useractivated($email))
+        return false;
+}
+
+function useractivated($uid)
+{
+	global $dbh;
+
+
+
+    $q = 'SELECT status FROM users WHERE id = :uid;';
+    $stmt = $dbh->prepare($q);
+
+    $status = $stmt->execute(
+        array(
+            'uid' => $uid
+        )
+    );
+
+    if ($status) {
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $result['status'] != 0;
+    }
+
+    return false;
+}
+
+function activateuser($uid)
+{
+	global $dbh;
+
+    $q = 'UPDATE users SET status = 1 WHERE id = :uid;';
+    $stmt = $dbh->prepare($q);
+
+    $status = $stmt->execute(
+        array(
+            'uid' => $uid
+        )
+    );
+
+    return $status;
+}
+

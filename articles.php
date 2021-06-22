@@ -9,11 +9,18 @@ include 'includes/header.php';
 
 <main>
 
+<?php
+
+        if ((isset($_SESSION['role']) && $_SESSION['role'] == 2)) {
+            echo '<a href="creation_article" id="edit-article">
+                <i class="fas fa-pen-nib"></i>
+            </a>';
+	}?>
 
     <div class="article-list">
 
         <?php
-        include 'includes/functions.php';
+
         function getDataByUID($uid, $data = "*", $table = 'users')
         {
             global $dbh;
@@ -36,8 +43,8 @@ include 'includes/header.php';
                 echo '<div class="article-thumbnail">
                         <p>' . getDataByUID($article['author'], 'pseudo')[0]['pseudo'] . '</p>
                         <h3>' . $article['title'] . '</h3>
-                        <img src="' . 'uploads/' . $article['title'] . '/' . $article['image'] . '" alt="article thumbnail" />
-                        <button>Lire cet article</button>
+                        <img src="' . 'uploads/articles/' . $article['image'] . '" alt="article thumbnail" />
+                        <a href="article/' . $article['id'] . '"><button>Lire cet article</button></a>
                     </div>';
             }
         }

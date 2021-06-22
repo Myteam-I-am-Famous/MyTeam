@@ -4,7 +4,20 @@ header('Access-Control-Allow-Origin: *');
 
 include 'includes/database_handler.php';
 
+function searchUser($users, $query)
+{
+    $result = [];
 
+    foreach ($users as $user) {
+        if (
+            strpos(strtolower($user['first_name']), strtolower($query)) !== false
+            || strpos(strtolower($user['last_name']), strtolower($query)) !== false
+        )
+            array_push($result, $user);
+    }
+
+    return $result;
+}
 
 function searchAthlete($athletes, $query)
 {
@@ -26,7 +39,20 @@ function searchAthlete($athletes, $query)
 
 if (isset($_POST['query'])) {
 
-    $q = 'SELECT * FROM basketball_cards ORDER BY full_name;';
+    $q = 'SELECT 
+    basketball_cards.id,
+    basketball_cards_variants.id as vid,
+    full_name, position,
+    team,
+    jersey_number,
+    team_abv,
+    headshot_url,
+    variant,
+    variantURL
+    FROM basketball_cards
+    INNER JOIN basketball_cards_variants
+    ON basketball_cards.id = basketball_cards_variants.card
+    ORDER BY variant;';
     $stmt = $dbh->prepare($q);
     $status = $stmt->execute();
     if ($status) {

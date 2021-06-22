@@ -1,110 +1,84 @@
-const buy = document.getElementById("buy");
-const refresh = document.getElementById("refresh");
-const cardImg = document.querySelector("#card-1 img");
-
 Array.prototype.random = function () {
   return this[Math.floor(Math.random() * this.length)];
 };
 
-const teamABV = [
-  "ATL",
-  "BOS",
-  "CHA",
-  "CHI",
-  "CLE",
-  "DAL",
-  "DEN",
-  "DET",
-  "GSW",
-  "HOU",
-  "IND",
-  "LAC",
-  "LAL",
-  "MEM",
-  "MIA",
-  "MIL",
-  "MIN",
-  "NO",
-  "NYK",
-  "ORL",
-  "PHI",
-  "PHX",
-  "POR",
-  "SA",
-  "SAC",
-  "TOR",
-  "UTH",
-  "WSH",
-];
+const buyBtns = document.querySelectorAll(".buy-btn");
+const packedCardsContainer = document.querySelector(".packed-cards-container");
+const packedCards = document.getElementById("packed-cards");
+const packedCardsCls = document.getElementById("packed-cards-cls");
+const mtPoints = document.getElementById("mt-points");
 
-const baseURL =
-  "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/";
+const overlayContainer = document.getElementById("overlay-container");
+const overlay = document.getElementById("overlay");
+const overlayCloseBtn = document.getElementById("overlay-close");
+const overlayTitle = document.getElementById("overlay-title");
+const overlayMessage = document.getElementById("overlay-message");
 
-const randomTeams = [0, 1, 2, 3, 4];
-let randomTeam;
-let randomAthlete;
-
-refresh.addEventListener("click", () => {
-  randomTeam = teamABV.random();
-  Search();
+buyBtns.forEach((buyBtn) => {
+  buyBtn.addEventListener("click", () => {
+    buyPack(buyBtn.id.split("-")[1]);
+  });
 });
 
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+packedCardsCls.addEventListener("click", () => {
+  hidePackedCards();
+});
 
-async function Search() {
-  const response = await fetch(
-    nbaAPI.baseURL + nbaAPI.teams + randomTeam + "/roster"
-  );
-  const result = response.ok ? await response.json() : false;
+overlayCloseBtn.addEventListener("click", () => {
+  overlayContainer.style.opacity = 0;
+  overlayContainer.style.pointerEvents = "none";
+});
 
-  getRandomAthlete(result.positionGroups[0].athletes);
-}
+function buyPack(id) {
+  const xhr = new XMLHttpRequest();
 
-function getRandomAthlete(athletes) {
-  const randomAthlete = athletes.random();
+  xhr.onload = () => {
+    const response = JSON.parse(xhr.responseText);
+    console.log(response);
 
-  const athleteName = (
-    randomAthlete.fullName.split(" ")[0] +
-    "-" +
-    randomAthlete.fullName.split(" ")[1]
-  ).toLowerCase();
+    if (response.status) {
+      packedCards.innerHTML = "";
 
-  const imageURL = `http://content.mtdb.com/www/nba2k20/${athleteName}-1.png`;
+      let packedCard = '<div class="packed-card">';
+      packedCard += `<img src="${response.data[0].variantURL}" alt="" srcset="">`;
+      packedCard += "</div>";
 
-  checkImage(
-    imageURL,
-    () => {
-      cardImg.src = imageURL;
-      getAthleteStats(randomAthlete.id).then((stats) => {
-        const athleteTeam = randomAthlete.teams[randomAthlete.teams.length - 1];
+      packedCards.innerHTML = packedCard;
+      mtPoints.innerHTML =
+        "MT_POINTS : " + response.remainingPoints.toLocaleString();
 
-        getPlayerCard(
-          randomAthlete.id,
-          randomAthlete,
-          stats.splitCategories[0].splits[0].stats,
-          athleteTeam
-        );
-      });
-    },
-    () => {
-      getRandomAthlete(athletes);
+      displayPackedCards();
+    } else {
+      if (response.message == "duplicate") {
+        const overlayMesage = document.getElementById("overlay-message");
+        console.log("refund : " + response.refund);
+        overlayMesage.innerHTML =
+          "Doublons de carte 😥, remboursement de " +
+          response.refund +
+          ' <span class="green">MT_POINTS</span>';
+    mtpoints.innerhtml =
+        "mt_points : " +
+        (response.remainingpoints + response.refund).tolocalestring();
+
+      }
+      overlayContainer.style.opacity = 1;
+      overlayContainer.style.pointerEvents = "auto";
     }
-  );
+  };
+
+  const data = new FormData();
+  data.append("id", id);
+
+  xhr.open("POST", "shop_ajax.php", true);
+  xhr.send(data);
 }
 
-function checkImage(imageSrc, good, bad) {
-  const img = new Image();
-  img.onload = good;
-  img.onerror = bad;
-  img.src = imageSrc;
+function displayPackedCards() {
+  packedCardsContainer.style.opacity = 1;
+  packedCardsContainer.style.pointerEvents = "auto";
 }
 
-// async function getAthleteStats(id) {
-//   const request = await fetch(
-//     nbaAPI.baseURL + nbaAPI.athletes + id + "/" + nbaAPI.stats
-//   );
-// }
+function hidePackedCards() {
+  packedCardsContainer.style.opacity = 0;
+  packedCardsContainer.style.pointerEvents = "none";
+}

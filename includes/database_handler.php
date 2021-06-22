@@ -1,6 +1,6 @@
 <?php
 
-$dbname = "myteam_rebuild";
+$dbname = "myteam_final";
 $host = 'localhost';
 $dsn = "mysql:dbname=" . $dbname . ";host=" . $host;
 

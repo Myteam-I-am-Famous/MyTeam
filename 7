@@ -1,0 +1,19 @@
+<IFModule mod_rewrite.c>
+RewriteEngine On [L]
+RewriteRule ^home$ /index.php [L]
+RewriteRule ^inscription$ /signup.php [L]
+RewriteRule ^connexion$ /login.php [L]
+RewriteRule ^tous-les-articles$ /articles.php [L]
+RewriteRule ^admin$ /Admin[L]
+RewriteRule ^verification/([a-zA-Z0-9]+)$ /code_check.php?code=$1 [L]
+RewriteRule ^forum$ /forums.php [L]
+RewriteRule ^article/([0-9]+)$ /read_article.php?id=$1 [L]
+</IFModule>
+<limit GET POST HEAD>
+    Order Allow,Deny
+    Allow from all
+    Deny from env=bad_bot
+</limit>
+ErrorDocument 404 /errors/404.php
+
+

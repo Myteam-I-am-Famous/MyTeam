@@ -1,4 +1,10 @@
 <?php session_start();
+
+if (!isset($_SESSION['uid'])) {
+    header('location: index.php?code=accessdenied');
+    exit;
+}
+
 $title = "Football | Inventaire";
 
 include 'includes/head.php';
@@ -9,26 +15,18 @@ include 'includes/header.php'; ?>
 
     <div class="team-container">
 
-
-        <!-- <div class="team-card">
-            <div class="card-bg"></div>
-            <div class="card-content">
-                <div class="card-text">
-                    <div class="card-role">
-                        <p>HEAT / SF</p>
-                    </div>
-                    <div class="card-identity">
-                        <h3>LEBRON</h3>
-                        <p> 23 </p>
-                        <h3>JAMES</h3>
-                    </div>
-                </div>
-            </div>
-        </div> -->
-
         <h1>MY<span class="yellow">TEAM</span> <span class="red">NBA</span></h1>
 
         <h3 id="overall">Team Overall : </h3>
+
+        <?php
+
+
+        $user = getDataByID($_SESSION['uid']);
+
+        echo '<h3>Mt_points : ' . number_format($user[0]['mt_points'], 0, ',', ' ') . '</h3>';
+
+        ?>
 
         <div class="myteam-cards">
 
@@ -61,6 +59,9 @@ include 'includes/header.php'; ?>
 
 
         <?php
+
+
+        /*
 
         include './includes/functions.php';
 
@@ -148,10 +149,12 @@ include 'includes/header.php'; ?>
                     <div class='inventory-empty-bg'></div>
                   </div>";
         }
-
+*/
         ?>
 
+        <div class="inventory-cards-container">
 
+        </div>
     </div>
 
 

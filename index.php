@@ -7,10 +7,6 @@ include 'includes/header.php';
 
 <main>
 
-
-
-
-
     <div class="container">
 
         <div id="panel-1">
@@ -23,10 +19,7 @@ include 'includes/header.php';
                         <div class="match-card">
                             <div class="match-card-options">
                                 <div class="match-card-option active-card-option">
-                                    <h3>Resultat</h3>
-                                </div>
-                                <div class="match-card-option">
-                                    <h3>Stats</h3>
+                                    <h3>Résultat</h3>
                                 </div>
                             </div>
                             <p class="match-abv">FCB - MCI</p>
@@ -39,12 +32,10 @@ include 'includes/header.php';
                         </div>
                         <div class="match-card">
                             <div class="match-card-options">
-                                <div class="match-card-option">
-                                    <h3>Resultat</h3>
+                                <div class="match-card-option active-card-option">
+                                    <h3>Résultat</h3>
                                 </div>
-                                <div class="match-card-option  active-card-option">
-                                    <h3>Stats</h3>
-                                </div>
+
                             </div>
                             <p class="match-abv">RM - PSG</p>
                             <div class="match-info">
@@ -57,10 +48,7 @@ include 'includes/header.php';
                         <div class="match-card">
                             <div class="match-card-options">
                                 <div class="match-card-option active-card-option">
-                                    <h3>Resultat</h3>
-                                </div>
-                                <div class="match-card-option">
-                                    <h3>Stats</h3>
+                                    <h3>Résultat</h3>
                                 </div>
                             </div>
                             <p class="match-abv">OL - MCI</p>
@@ -95,7 +83,7 @@ include 'includes/header.php';
             </div>
 
             <div class="panel-1-3">
-                <div class="chat-container">
+                <!-- <div class="chat-container">
                     <i class="fas fa-times chat-close"></i>
                     <h2 class="chat-title">Chat</h2>
                     <div class="chat-content">
@@ -126,18 +114,20 @@ include 'includes/header.php';
                         <input id="chat-input" type="text" placeholder="Envoyer un message">
                         <i class="fas fa-paper-plane send"></i>
                     </div>
-                </div>
+                </div> -->
 
                 <div class="mini-news-container">
                     <?php
-                    include "includes/functions.php";
 
                     $articles = getDataFrom('articles');
 
                     foreach (array_reverse($articles) as $article) {
                         echo '<div class="mini-news">
-                        <h4>' . $article['title'] .  '</h4>
-                        <img src="' . 'uploads/' . $article['title'] . '/' . $article['image'] . '" alt="" srcset="">
+                        <a href="article/' . $article['id'] . '"><div class="mini-news-header">
+                            <i class="fab fa-readme"></i>
+                            <h4>' . $article['title'] .  '</h4>
+                        </div></a>
+                        <img src="' . 'uploads/articles/' . $article['image'] . '" alt="" srcset="">
                     </div>';
                     }
 
@@ -145,22 +135,7 @@ include 'includes/header.php';
 
 
                     ?>
-                    <div class="mini-news">
-                        <h4>Mbappé en couple avec Neymar ? </h4>
-                        <img src="https://imgresizer.eurosport.com/unsafe/1200x0/filters:format(jpeg):focal(948x578:950x576)/origin-imgresizer.eurosport.com/2020/12/17/2956970-60695328-2560-1440.jpg" alt="" srcset="">
-                    </div>
-                    <div class="mini-news">
-                        <h4>Paul Pogba sort son album de rap</h4>
-                        <img src="https://images.daznservices.com/di/library/GOAL/8e/6c/paul-pogba-manchester-united_ssc49lp07z301dzqds1s9y65x.jpg?t=1689427440&quality=100" alt="" srcset="">
-                    </div>
-                    <div class="mini-news">
-                        <h4>TRANQUILO DE QUOI ?!</h4>
-                        <img src="https://images2.minutemediacdn.com/image/upload/c_fill,w_1200,h_630,f_auto,q_auto,g_auto/shape/cover/sport/fc-barcelona-v-borussia-dortmund-group-f-uefa-champions-league-5e9019ca4bb6e9e4c2000001.jpg" alt="" srcset="">
-                    </div>
-                    <div class="mini-news">
-                        <h4>Cristiano Ronaldo propose un tête à Messi</h4>
-                        <img src="https://www.leparisien.fr/resizer/5RLD5pTFw9Uv4N2y2NZMXwVRqNQ=/932x582/cloudfront-eu-central-1.images.arcpublishing.com/leparisien/ODFDKMLMPADW2OW4HSNAI2ZGPA.jpg" alt="" srcset="">
-                    </div>
+
                 </div>
             </div>
 
