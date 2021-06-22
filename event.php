@@ -3,12 +3,12 @@
 include 'includes/functions.php';
 
 if (!isset($_SESSION['uid'])) {
-    header('location: index.php?code=accessdenied');
+    header('location: ../home?code=accessdenied');
     exit;
 }
 
 if (!isset($_GET['id']) || empty($_GET['id'])) {
-    header('location: index.php?code=noeventfound');
+    header('location: ../home?code=noeventfound');
     exit;
 }
 if (isset($_SESSION['status']) && $_SESSION['status'] == 0) {
@@ -21,7 +21,7 @@ setlocale(LC_TIME, 'fr_FR.utf8', 'fra');
 $events = getDataByID($_GET['id'], '*', 'events');
 
 if ($events == null) {
-    header('location: index.php?code=noeventfound');
+    header('location: ../home?code=noeventfound');
     exit;
 }
 

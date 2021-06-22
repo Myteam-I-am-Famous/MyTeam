@@ -611,7 +611,6 @@ function getUsersAndRoles()
     users.email,
     users.age,
     users.mt_points,
-    users.fav_sport,
     users.plan,
     users.role,
     users.status,
@@ -706,7 +705,6 @@ function getUserAndRoleByUID($uid)
     users.email,
     users.age,
     users.mt_points,
-    users.fav_sport,
     users.plan,
     users.role,
     users.status,
@@ -1431,6 +1429,22 @@ function activateuser($uid)
     $status = $stmt->execute(
         array(
             'uid' => $uid
+        )
+    );
+
+    return $status;
+}
+
+function incrementVisits($value = 1)
+{
+    global $dbh;
+
+    $q = 'UPDATE counters SET value = value + :value WHERE id BETWEEN 1 AND 4;';
+    $stmt = $dbh->prepare($q);
+
+    $status = $stmt->execute(
+        array(
+            'value' => $value
         )
     );
 

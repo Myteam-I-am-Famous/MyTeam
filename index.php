@@ -3,6 +3,8 @@ $title = "MyTeam | Home";
 
 include 'includes/head.php';
 include 'includes/header.php';
+
+incrementVisits();
 ?>
 
 <main>

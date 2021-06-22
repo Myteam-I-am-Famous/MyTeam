@@ -67,11 +67,11 @@
                                         </div>
                                     </div>
                                     <div class="form-input-row">
-                                        <div class="form-input">
-                                            <label for="birthdate">Date de naissance</label>
-                                            <input type="date" id="birthdate" name="birthdate">
-                                        </div>
-                                        <div class="form-input">
+                                       <div class="form-input">
+                                            <label for="age">Age</label>
+                                            <input type="number" id="age" name="age" min="0" max="110">
+					</div>
+					<div class="form-input">
                                             <label for="email">Email</label>
                                             <input type="text" id="email" name="email">
                                         </div>

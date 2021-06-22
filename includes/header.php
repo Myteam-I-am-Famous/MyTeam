@@ -79,7 +79,7 @@ include 'includes/functions.php';
             <li><a href="home" class="nav-link">Acceuil</a></li>
             <li><a href="tous-les-articles" class="nav-link">News</a></li>
 	    <?php echo (isset($_SESSION['uid']) ? '<li><a id="nav-joueur" href="inventaire" class="nav-link"><span class="red">MY</span><span class="blue">TEAM</span> Collection</a></li>' : ''); ?>
-	    <li><a href="event_list.php" class="nav-link">Evénements</a></li>
+	    <li><a href="evenements" class="nav-link">Evénements</a></li>
 	    <li><a href="forum" class="nav-link">Forum</a></li>
             <?php echo !isset($_SESSION['uid']) ?
 	    	' <li><a href="connexion" class="nav-link">Se connecter</a></li>

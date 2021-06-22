@@ -122,6 +122,12 @@ nav {
   background-color: #ccc;
 }
 
+#auto-complete a {
+  text-decoration: none;
+  color: inherit;
+}
+
+
 .nav-links {
   display: flex;
   list-style: none;
@@ -974,6 +980,79 @@ form button {
   border: none;
   outline: none;
   cursor: pointer;
+}
+
+/** Login */
+
+.login-form {
+  min-width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  margin-top: 12rem;
+  justify-content: center;
+}
+
+.login-form h1 {
+  position: absolute;
+  top: 20%;
+}
+
+.login-form #bg-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: -5;
+  filter: brightness(0.5);
+}
+
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  flex-direction: column;
+}
+
+.login-container form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.login-container form input {
+  width: 400px;
+  height: 40px;
+  margin: 1rem 0;
+  padding: 0.3rem 1rem;
+  border-radius: 0;
+  outline: none;
+  border: none;
+}
+
+.login-container i {
+  font-size: 5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background-color: #1f2f55;
+}
+
+.login-form form button {
+  margin-top: 5rem;
+  background: #b59f30;
+  color: white;
+  font-weight: bold;
+}
+
+.login-container {
+  width: 500px;
+  /* height: 500px; */
 }
 
 /** Inventory */
@@ -2772,3 +2851,29 @@ th i {
 	align-items: center;
 
 }
+
+.user-response {
+  background-color: rgb(139, 139, 235);
+}
+
+.athlete-response {
+  background-color: rgb(235, 216, 139);
+}
+
+.forum-response {
+  background-color: rgb(213, 75, 155);
+}
+
+.article-response {
+  background-color: rgb(57, 225, 99);
+}
+
+.auto-complete-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0;
+  background-color: rgb(63, 63, 63);
+  color: white;
+}
+
